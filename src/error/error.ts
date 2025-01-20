@@ -1,13 +1,21 @@
 const INTERNAL_SERVER_ERROR = "Internal server error";
 
-const formatmsgPrefixOrMsg = (msg: string | undefined) =>
-  msg ? msg + " " : "";
+const formatMsg = (msg: string | undefined) => (msg ? msg + " " : "");
 
 class ApiError extends Error {
   public status: number;
-
-  constructor(status: number, msgPrefixOrMsg?: string, fullReplace = false) {
-    let errorMsg = formatmsgPrefixOrMsg(msgPrefixOrMsg);
+  /**
+   *
+   * @param status {number}
+   * @param msgPrefixOrMsg {string | undefined}
+   * @param fullReplace {boolean} - defaults to false, if set true insted of concatanating message it fully replace error message
+   */
+  constructor(
+    status: number,
+    msgPrefixOrMsg?: string,
+    fullReplace: boolean = false
+  ) {
+    let errorMsg = formatMsg(msgPrefixOrMsg);
 
     switch (status) {
       case 400:
