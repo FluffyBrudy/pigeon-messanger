@@ -1,0 +1,18 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public"]
+}
+
+model User {
+  id       String @id @default("uuid_dbgenerate_v4()")
+  username String @db.VarChar(100)
+  password String @db.VarChar(64)
+
+  @@schema("public")
+}
