@@ -1,0 +1,26 @@
+{
+  "name": "pigeon-messanger",
+  "version": "1.0.0",
+  "description": "Social web application",
+  "homepage": "https://gitlab.com/FluffyRudy/pigeon-messanger#readme",
+  "bugs": {
+    "url": "https://gitlab.com/FluffyRudy/pigeon-messanger/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/FluffyRudy/pigeon-messanger.git"
+  },
+  "license": "ISC",
+  "author": "FluffyRudy",
+  "type": "commonjs",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.2.1",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}
