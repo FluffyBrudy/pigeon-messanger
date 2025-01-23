@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
-import passport, { authenticate } from "passport";
+import passport from "passport";
 import { ExpressUser } from "../types/common";
-import ApiError from "../error/error";
+import { ApiError } from "../error/error";
 
 export const verifyAuth = () => {
   const middleware: RequestHandler = (req, res, next) => {

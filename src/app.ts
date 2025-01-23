@@ -5,9 +5,9 @@ import passport from "passport";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import { dbClient } from "./service/dbClient";
 import { ExpressUser } from "./types/common";
-import ApiError from "./error/error";
+import { ApiError } from "./error/error";
 import { errorMiddleware } from "./middleware/errorMiddleware";
-import { verifyAuth } from "./middleware/authVerification";
+import { authRouter } from "./router/authRouter";
 
 declare global {
   namespace Express {
@@ -49,13 +49,13 @@ const strategy = new JWTStrategy(opts, async (payload: ExpressUser, done) => {
   }
 });
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(expressSessionConfig);
 app.use(passport.session());
 passport.use(strategy);
 
-app.use("/", verifyAuth(), (req, res) => {
+app.use("/api/auth", authRouter);
+app.use("/api", (_, res) => {
   res.json({ msg: "hello" });
 });
 

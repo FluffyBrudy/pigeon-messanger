@@ -1,3 +1,5 @@
+import { ValidationError, FieldValidationError } from "express-validator";
+
 const INTERNAL_SERVER_ERROR = "Internal server error";
 
 const formatMsg = (msg: string | undefined) => (msg ? msg + " " : "");
@@ -43,4 +45,17 @@ class ApiError extends Error {
   }
 }
 
-export default ApiError;
+class BodyValidationError extends Error {
+  public status: number;
+  constructor(errors: Array<ValidationError>) {
+    super();
+    this.message = errors.reduce((accm, curr) => {
+      const castedCurr = curr as FieldValidationError;
+      return accm + `${castedCurr.path}: ${curr.msg};`;
+    }, "");
+    this.status = 400;
+    this.name = "ValidationError";
+  }
+}
+
+export { ApiError, BodyValidationError };

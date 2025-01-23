@@ -10,9 +10,75 @@ datasource db {
 }
 
 model User {
-  id       String @id @default("uuid_dbgenerate_v4()")
-  username String @db.VarChar(100)
-  password String @db.VarChar(64)
+  id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  username         String             @db.VarChar(50)
+  email            String             @unique
+  password         String             @db.VarChar(64)
+  chatGroup        Group[]
+  message          Message[]
+  messageRecipient MessageRecipient[]
+  profile          Profile[]
+
+  @@schema("public")
+}
+
+model Group {
+  id               String             @id(map: "Group_pkey") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name             String             @db.VarChar(50)
+  createdAt        DateTime?          @default(now()) @db.Date
+  isActive         Boolean?           @default(false)
+  adminId          String             @db.Uuid
+  admin            User               @relation(fields: [adminId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ChatGroup_admin_id_fk")
+  messageRecipient MessageRecipient[]
+  GroupMessage     GroupMessage[]
+
+  @@schema("public")
+}
+
+model Message {
+  id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  messageBody      String
+  createdAt        DateTime?          @default(now()) @db.Date
+  parentMessageId  String?            @db.Uuid
+  expiryDate       DateTime?          @db.Date
+  creatorId        String             @db.Uuid
+  creator          User               @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  messageRecipient MessageRecipient[]
+  GroupMessage     GroupMessage[]
+
+  @@schema("public")
+}
+
+model GroupMessage {
+  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  group_id   String   @db.Uuid
+  message_id String   @db.Uuid
+  group      Group    @relation(fields: [group_id], references: [id])
+  message    Message  @relation(fields: [message_id], references: [id])
+  created_at DateTime
+  is_active  Boolean  @default(false)
+
+  @@schema("public")
+}
+
+model MessageRecipient {
+  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  recipientId String   @db.Uuid
+  groupId     String   @db.Uuid
+  isRead      Boolean? @default(false)
+  messageId   String   @db.Uuid
+  chatGroup   Group    @relation(fields: [groupId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ChatGroup_group_id_fk")
+  message     Message  @relation(fields: [messageId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  reciptient  User     @relation(fields: [recipientId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@schema("public")
+}
+
+model Profile {
+  id      String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId  String  @db.Uuid
+  picture String? @default("https://res.cloudinary.com/dlygf7xye/image/upload/v1736098504/00721c9db2261d4ab0f9528ba9f3c7f2e70f5330.png")
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }

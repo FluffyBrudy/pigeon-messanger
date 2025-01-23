@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import ApiError from "../error/error";
+import { ApiError } from "../error/error";
 
 type RequestHandler = (
   err: ApiError,
