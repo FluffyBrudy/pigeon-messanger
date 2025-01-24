@@ -1,9 +1,18 @@
 import { app } from "./app";
+import { createServer as createHttpServer } from "http";
+import { Server as newIOServer } from "socket.io";
 
-if (process.env.NODE_ENV === "dev") {
-  app.listen(3000, () => {
-    console.log("Listening at: http://localhost:3000");
-  });
-}
+const httpServer = createHttpServer(app);
+const io = new newIOServer(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
 
-export default app;
+io.on("connection", (socket) => {
+  console.log("Client connected");
+});
+
+app.listen(3000, () => {
+  console.log("Listening at: http://localhost:3000");
+});

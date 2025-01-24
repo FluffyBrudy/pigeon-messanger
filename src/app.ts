@@ -3,6 +3,7 @@ import express from "express";
 import expressSession from "express-session";
 import passport from "passport";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
+import cors from "cors";
 import { dbClient } from "./service/dbClient";
 import { ExpressUser } from "./types/common";
 import { ApiError } from "./error/error";
@@ -49,6 +50,14 @@ const strategy = new JWTStrategy(opts, async (payload: ExpressUser, done) => {
   }
 });
 
+app.use(
+  cors((req, cb) => {
+    const origin = req.headers["origin"];
+    if (origin === "http://localhost:5173")
+      cb(null, { origin: true, credentials: true });
+    else cb(null, { origin: true, credentials: false });
+  })
+);
 app.use(express.json());
 app.use(expressSessionConfig);
 app.use(passport.session());

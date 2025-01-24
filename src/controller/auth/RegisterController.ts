@@ -20,7 +20,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
         select: { id: true },
       });
       await dbClient.profile.create({
-        data: { user_id: user.id },
+        data: { userId: user.id },
       });
     });
     res.status(200).json({ data: "user successfully created" });
