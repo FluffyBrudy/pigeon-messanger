@@ -2,7 +2,11 @@ import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
 import { sign as JWTSign } from "jsonwebtoken";
 import { compareSync } from "bcryptjs";
-import { ApiError, BodyValidationError } from "../../error/error";
+import {
+  ApiError,
+  BodyValidationError,
+  LoggerApiError,
+} from "../../error/error";
 import { EMAIL, PASSWORD } from "../../validator/auth/constants";
 import { dbClient } from "../../service/dbClient";
 import { ACCESS_TOKEN, INVALID_CREDENTIALS, REFRESH_TOKEN } from "./constants";
@@ -47,6 +51,6 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       data: { [ACCESS_TOKEN]: accessToken },
     });
   } catch (error) {
-    return next(new ApiError(500));
+    return next(new LoggerApiError(error, 500));
   }
 };

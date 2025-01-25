@@ -1,7 +1,11 @@
 import { RequestHandler } from "express";
 import { hashSync, genSaltSync } from "bcryptjs";
 import { validationResult } from "express-validator";
-import { ApiError, BodyValidationError } from "../../error/error";
+import {
+  ApiError,
+  BodyValidationError,
+  LoggerApiError,
+} from "../../error/error";
 import { RegisterBody } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 
@@ -27,6 +31,6 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
   } catch (error: any) {
     if (error.code === "P2002")
       return next(new ApiError(409, "User already exists", true));
-    else return next(new ApiError(500));
+    else return next(new LoggerApiError(error, 500));
   }
 };

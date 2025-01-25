@@ -1,4 +1,5 @@
 import { ValidationError, FieldValidationError } from "express-validator";
+import { logger } from "../logger/logger";
 
 const INTERNAL_SERVER_ERROR = "Internal server error";
 
@@ -45,6 +46,18 @@ class ApiError extends Error {
   }
 }
 
+class LoggerApiError extends ApiError {
+  constructor(
+    trueError: any,
+    status: number,
+    msgPrefixOrMsg?: string,
+    fullReplace: boolean = false
+  ) {
+    super(status, msgPrefixOrMsg, fullReplace);
+    logger.error(trueError);
+  }
+}
+
 class BodyValidationError extends Error {
   public status: number;
   constructor(errors: Array<ValidationError>) {
@@ -58,4 +71,4 @@ class BodyValidationError extends Error {
   }
 }
 
-export { ApiError, BodyValidationError };
+export { ApiError, LoggerApiError, BodyValidationError };
