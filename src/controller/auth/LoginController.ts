@@ -27,11 +27,11 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       where: { email },
       select: { id: true, password: true },
     });
-    if (!user) return next(new ApiError(401, INVALID_CREDENTIALS, true));
+    if (!user) return next(new ApiError(400, INVALID_CREDENTIALS, true));
 
     const isValidPassword = compareSync(password, user.password);
     if (!isValidPassword)
-      return next(new ApiError(401, INVALID_CREDENTIALS, true));
+      return next(new ApiError(400, INVALID_CREDENTIALS, true));
 
     const accessToken = JWTSign(user, process.env.JWT_SECRET!, {
       expiresIn: process.env.ACCESS_TOKEN_LIFE!,
