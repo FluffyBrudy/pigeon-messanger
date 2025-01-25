@@ -11,6 +11,10 @@ const io = new newIOServer(httpServer, {
 
 io.on("connection", (socket) => {
   console.log("Client connected");
+
+  socket.on("hello", (res) => {
+    console.log(res);
+  });
 });
 
 httpServer.listen(3000, () => {
