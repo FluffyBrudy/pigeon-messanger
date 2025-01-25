@@ -13,6 +13,6 @@ io.on("connection", (socket) => {
   console.log("Client connected");
 });
 
-app.listen(3000, () => {
+httpServer.listen(3000, () => {
   console.log("Listening at: http://localhost:3000");
 });
