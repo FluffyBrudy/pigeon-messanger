@@ -10,7 +10,6 @@ import { ACCESS_TOKEN, INVALID_CREDENTIALS, REFRESH_TOKEN } from "./constants";
 export const LoginController: RequestHandler = async (req, res, next) => {
   const validatedRes = validationResult(req);
   if (!validatedRes.isEmpty()) {
-    console.log(validatedRes);
     return next(new BodyValidationError(validatedRes.array()));
   }
 

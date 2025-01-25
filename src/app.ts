@@ -53,7 +53,9 @@ const strategy = new JWTStrategy(opts, async (payload: ExpressUser, done) => {
 app.use(
   cors((req, cb) => {
     const origin = req.headers["origin"];
-    if (origin === "http://localhost:5173")
+    const frontendUrls = process.env.FRONTEND_URLS!.split(",");
+    if (!origin) cb(null, { origin: false, credentials: false });
+    else if (frontendUrls.includes(origin))
       cb(null, { origin: true, credentials: true });
     else cb(null, { origin: true, credentials: false });
   })
