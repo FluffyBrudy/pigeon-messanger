@@ -1,5 +1,18 @@
 import { app } from "./app";
+import { createServer as createHttpServer } from "http";
+import { Server as newIOServer } from "socket.io";
 
-app.listen(3000, () => {
+const httpServer = createHttpServer(app);
+const io = new newIOServer(httpServer, {
+  cors: {
+    origin: "*",
+  },
+});
+
+io.on("connection", (socket) => {
+  console.log("Client connected");
+});
+
+httpServer.listen(3000, () => {
   console.log("Listening at: http://localhost:3000");
 });
