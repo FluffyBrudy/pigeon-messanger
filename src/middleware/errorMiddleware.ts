@@ -1,8 +1,8 @@
 import { NextFunction, Request, Response } from "express";
-import { ApiError } from "../error/error";
+import { ApiError, LoggerApiError } from "../error/error";
 
 type RequestHandler = (
-  err: ApiError,
+  err: ApiError | LoggerApiError,
   req: Request,
   res: Response,
   next: NextFunction
