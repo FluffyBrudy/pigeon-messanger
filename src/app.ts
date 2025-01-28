@@ -9,6 +9,7 @@ import { ExpressUser } from "./types/common";
 import { ApiError } from "./error/error";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import { authRouter } from "./router/authRouter";
+import { socialRouter } from "./router/socialRouter";
 
 declare global {
   namespace Express {
@@ -66,6 +67,7 @@ app.use(passport.session());
 passport.use(strategy);
 
 app.use("/api/auth", authRouter);
+app.use("/api/social", socialRouter);
 app.use("/api", (_, res) => {
   res.json({ msg: "hello" });
 });
