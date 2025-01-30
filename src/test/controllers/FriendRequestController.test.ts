@@ -1,0 +1,85 @@
+import request from "supertest";
+import { dbClient } from "../../service/dbClient";
+import { loginUser, registerUsers } from "../testUtils/authUtils";
+import { app } from "../../app";
+import { FRIEND_ID } from "../../validator/social/constants";
+
+describe("FriendRequest test", () => {
+  const sender = {
+    username: "Sam",
+    email: "apple@gmail.com",
+    password: "Applefruit#12",
+  };
+  const recvr = {
+    username: "ball",
+    email: "ball@gmail.com",
+    password: "Applefruit#12",
+  };
+  let id1: string,
+    id2: string,
+    accessToken1: string,
+    accessToken2: string,
+    friendshipId: string;
+
+  beforeAll(async () => {
+    await dbClient.$connect();
+    const users = [sender, recvr];
+    const res = await registerUsers(users);
+    expect(res.length).toBe(users.length);
+
+    const login = await loginUser(sender.email, sender.password);
+    const friendLogin = await loginUser(recvr.email, recvr.password);
+
+    expect(login.data).toHaveProperty("id");
+    expect(friendLogin.data).toHaveProperty("id");
+
+    id1 = login.data.id;
+    id2 = friendLogin.data.id;
+    accessToken1 = login.data.accessToken;
+    accessToken2 = login.data.accessToken;
+  });
+
+  afterAll(async () => {
+    await dbClient.user.deleteMany();
+  });
+
+  test("Must give 200 status code after sending friend request ", async () => {
+    const response = await request(app)
+      .post("/api/social/add-friend-request")
+      .set("Authorization", `Bearer ${accessToken1}`)
+      .type("json")
+      .send({ [FRIEND_ID]: id2 });
+
+    expect(response.status).toBe(200);
+  });
+
+  test("Must give 200 status code after pending friend request lookup", async () => {
+    const response = await request(app)
+      .get("/api/social/pending-friends-request")
+      .set("Authorization", `Bearer ${accessToken1}`);
+
+    expect(response.status).toBe(200);
+    friendshipId = (response.body.data[0] as { id: string }).id;
+  });
+
+  test("Must give 200 status code and truthy isActive boolean value", async () => {
+    console.log(friendshipId);
+    const respones = await request(app)
+      .post("/api/social/friend-request-accept")
+      .set("Authorization", `Bearer ${accessToken1}`)
+      .type("json")
+      .send({ [FRIEND_ID]: id2, id: friendshipId });
+
+    expect(respones.status).toBe(200);
+    expect(respones.body.data.isAccepted).toBeTruthy();
+  });
+
+  test("Must give empty array as data after friend request accepted", async () => {
+    const response = await request(app)
+      .get("/api/social/pending-friends-request")
+      .set("Authorization", `Bearer ${accessToken1}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveLength(0);
+  });
+});
