@@ -16,6 +16,7 @@
   "main": "./dist/index.js",
   "scripts": {
     "postinstall": "prisma generate",
+    "test": "NODE_ENV=test jest ./src/test --runInBand",
     "dev": "nodemon --watch 'src/**/*.ts' --ignore 'src/**/*.spec.ts' --exec 'ts-node' src/index.ts",
     "build": "prisma generate && tsc",
     "start": "ts-node src/index.ts"
@@ -39,12 +40,16 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
+    "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^22.10.10",
     "@types/passport-jwt": "^4.0.1",
     "@types/socket.io": "^3.0.1",
+    "@types/supertest": "^6.0.2",
     "nodemon": "^3.1.9",
     "prisma": "^6.2.1",
+    "supertest": "^7.0.0",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }

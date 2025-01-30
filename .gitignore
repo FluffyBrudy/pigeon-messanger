@@ -4,3 +4,4 @@ node_modules/
 *.py
 *.txt
 *.log
+coverage
