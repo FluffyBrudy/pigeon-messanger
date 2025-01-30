@@ -1,3 +1,10 @@
-import { cursorOptionalBody, searchTermBody } from "./validatorBody";
+import { idValidation } from "../validatorHelper";
+import { CURSOR, FRIEND_ID } from "./constants";
+import { searchTermBody } from "./validatorBody";
 
-export const findFriendsValidator = [cursorOptionalBody, searchTermBody];
+export const findFriendsValidator = [
+  idValidation(CURSOR, true),
+  searchTermBody,
+];
+export const addFriendValidation = [idValidation(FRIEND_ID)];
+export const accetpFriendValidation = [idValidation(), idValidation(FRIEND_ID)];
