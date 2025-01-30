@@ -8,6 +8,7 @@ import {
 } from "../../error/error";
 import { RegisterBody } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
+import { USER_SUCCESSFULLY_CREATED } from "./constants";
 
 export const RegisterController: RequestHandler = async (req, res, next) => {
   const validatedRes = validationResult(req);
@@ -27,7 +28,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
         data: { userId: user.id },
       });
     });
-    res.status(200).json({ data: "user successfully created" });
+    res.status(200).json({ data: USER_SUCCESSFULLY_CREATED });
   } catch (error: any) {
     if (error.code === "P2002")
       return next(new ApiError(409, "User already exists", true));

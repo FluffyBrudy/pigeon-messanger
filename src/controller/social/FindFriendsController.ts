@@ -51,11 +51,12 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
             created_at: "desc",
           },
         });
+        console.log(friendSuggestionUnknown);
         const flattenFriendSuggestionUnknown = friendSuggestionUnknown.map(
           (person) => ({
             id: person.id,
             username: person.username,
-            imageUrl: person.profile!.picture,
+            imageUrl: person.profile?.picture,
             isAccepted: false,
           })
         );
@@ -89,7 +90,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
           (person) => ({
             id: person.user.id,
             username: person.user.username,
-            imageUrl: person.user.profile!.picture,
+            imageUrl: person.user.profile?.picture,
             isAccepted: true,
           })
         );
@@ -99,6 +100,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
         return next(new ApiError(400, "Bad filter", true));
     }
   } catch (err) {
+    console.log(err);
     return next(new LoggerApiError(err, 500));
   }
 };
