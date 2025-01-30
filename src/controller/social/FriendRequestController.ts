@@ -26,7 +26,6 @@ export const AddFriendController: RequestHandler = async (req, res, next) => {
     });
     res.status(200).json({ data: FRIEND_REQUEST_SENT });
   } catch (err) {
-    console.clear();
     console.log(err);
     if (err instanceof PrismaClientKnownRequestError && err.code === "P2002") {
       return next(new ApiError(409, ALREADY_FRIEND_ERROR, true));
