@@ -1,6 +1,7 @@
 import { config } from "dotenv";
 import express from "express";
 import expressSession from "express-session";
+import cookieParser from "cookie-parser";
 import passport from "passport";
 import { Strategy as JWTStrategy, ExtractJwt } from "passport-jwt";
 import cors from "cors";
@@ -61,6 +62,8 @@ app.use(
     else cb(null, { origin: true, credentials: false });
   })
 );
+
+app.use(cookieParser(process.env.COOKIE_SECRET!));
 app.use(express.json());
 app.use(expressSessionConfig);
 app.use(passport.session());

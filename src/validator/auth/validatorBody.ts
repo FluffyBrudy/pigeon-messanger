@@ -28,9 +28,11 @@ export const emailBody = body(EMAIL)
   .isEmail()
   .withMessage(INVALID_EMAIL_FORMAT);
 
-export const passwordBody = body(PASSWORD)
+export const passwordExists = body(PASSWORD)
   .exists()
-  .withMessage(formatFieldDoesntExist(PASSWORD))
+  .withMessage(formatFieldDoesntExist(PASSWORD));
+
+export const passwordBody = passwordExists
   .trim()
   .isLength({ min: MIN_PASSWORD_LENGTH, max: MAX_PASSWORD_LENGTH })
   .withMessage(
