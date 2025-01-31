@@ -77,4 +77,8 @@ app.use("/api", (_, res) => {
 
 app.use(errorMiddleware());
 
+if (process.env.NODE_ENV === "dev" && process.env.LOG_ENDPOINTS) {
+  console.log(require("express-list-endpoints")(app));
+}
+
 export { app };
