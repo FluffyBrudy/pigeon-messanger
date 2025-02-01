@@ -8,6 +8,7 @@ import {
 import { dbClient } from "../../service/dbClient";
 import { FILTER, FIND_FRIEND_COUNT, KNOWN, UNKNOWN } from "./constants";
 import { CURSOR, SEARCH_TERM } from "../../validator/social/constants";
+import { ExpressUser } from "../../types/common";
 
 type TCursor = { cursor: string } | {};
 type Filter = typeof KNOWN | typeof UNKNOWN;
@@ -17,6 +18,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
   if (!validatedRes.isEmpty())
     return next(new BodyValidationError(validatedRes.array()));
 
+  const userId = (req.user as ExpressUser).id;
   const cursorId = req.body[CURSOR];
   const searchTerm = req.body[SEARCH_TERM];
   const filter: Filter = req.body[FILTER] || UNKNOWN;
@@ -28,18 +30,23 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
         const friendSuggestionUnknown = await dbClient.user.findMany({
           ...cursor,
           where: {
+            id: { not: userId },
             username: {
               startsWith: searchTerm,
               mode: "insensitive",
             },
-            NOT: {
-              FriendshipFriend: {
-                some: {
-                  friendId: (req.user as { id: string }).id,
-                  isAccepted: true,
+            AND: [
+              {
+                NOT: {
+                  FriendshipFriend: {
+                    some: {
+                      userId: userId,
+                      isAccepted: true,
+                    },
+                  },
                 },
               },
-            },
+            ],
           },
           select: {
             id: true,
