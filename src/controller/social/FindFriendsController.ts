@@ -35,18 +35,9 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
               startsWith: searchTerm,
               mode: "insensitive",
             },
-            AND: [
-              {
-                NOT: {
-                  FriendshipFriend: {
-                    some: {
-                      userId: userId,
-                      isAccepted: true,
-                    },
-                  },
-                },
-              },
-            ],
+            FriendshipFriend: {
+              none: { userId },
+            },
           },
           select: {
             id: true,

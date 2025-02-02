@@ -11,6 +11,8 @@ import { ApiError } from "./error/error";
 import { errorMiddleware } from "./middleware/errorMiddleware";
 import { authRouter } from "./router/authRouter";
 import { socialRouter } from "./router/socialRouter";
+import { verifyAuth } from "./middleware/authVerification";
+import { silentRouter } from "./router/silentRouter";
 
 declare global {
   namespace Express {
@@ -70,6 +72,10 @@ app.use(passport.session());
 passport.use(strategy);
 
 app.use("/api/auth", authRouter);
+
+app.use(verifyAuth());
+
+app.use("/api/silent", silentRouter);
 app.use("/api/social", socialRouter);
 app.use("/api", (_, res) => {
   res.json({ msg: "hello" });

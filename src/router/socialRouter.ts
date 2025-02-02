@@ -6,11 +6,12 @@ import {
   addFriendValidation,
   findFriendsValidator,
 } from "../validator/social/social";
-import { verifyAuth } from "../middleware/authVerification";
+
 import {
   AcceptFriendRequestController,
   AddFriendController,
-  PendingFriendRequestsController,
+  GetAcceptedFriendRequestsController,
+  GetPendingRequestsController,
 } from "../controller/social/FriendRequestController";
 
 const limiter = rateLimit({
@@ -23,27 +24,26 @@ const socialRouter = Router();
 socialRouter.post(
   "/friends-search",
   limiter,
-  verifyAuth(),
+
   findFriendsValidator,
   FindFriendsController
 );
 
 socialRouter.post(
   "/add-friend-request",
-  verifyAuth(),
   addFriendValidation,
   AddFriendController
 );
 
+socialRouter.get("/pending-friends-request", GetPendingRequestsController);
+
 socialRouter.get(
-  "/pending-friends-request",
-  verifyAuth(),
-  PendingFriendRequestsController
+  "/accepted-friend-request",
+  GetAcceptedFriendRequestsController
 );
 
 socialRouter.post(
   "/friend-request-accept",
-  verifyAuth(),
   accetpFriendValidation,
   AcceptFriendRequestController
 );
