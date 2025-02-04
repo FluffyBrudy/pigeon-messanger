@@ -8,9 +8,10 @@ import {
 import { dbClient } from "../../service/dbClient";
 import { ExpressUser } from "../../types/common";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { ALREADY_FRIEND_ERROR, FRIEND_REQUEST_SENT } from "./constants";
+import { ALREADY_REQUEST_SENT_ERROR, FRIEND_REQUEST_SENT } from "./constants";
 import { FRIEND_ID } from "../../validator/social/constants";
 import { logger } from "../../logger/logger";
+import { USERNAME } from "../../validator/auth/constants";
 
 export const AddFriendController: RequestHandler = async (req, res, next) => {
   const validatedRes = validationResult(req);
@@ -21,16 +22,26 @@ export const AddFriendController: RequestHandler = async (req, res, next) => {
   const userId = (req.user as ExpressUser).id;
 
   try {
-    await dbClient.friendship.create({
+    const alreadyFriended = await dbClient.acceptedFriendship.findUnique({
+      where: { userId1_userId2: { userId1: userId, userId2: friendId } },
+    });
+    if (alreadyFriended) {
+      return next(new ApiError(409, "You are already connected", true));
+    }
+    await dbClient.friendshipRequest.create({
       data: { userId, friendId },
-      select: { id: true },
+      select: { userId: true },
     });
     res.status(200).json({ data: FRIEND_REQUEST_SENT });
   } catch (err) {
-    console.log(err);
-    if (err instanceof PrismaClientKnownRequestError && err.code === "P2002") {
-      return next(new ApiError(409, ALREADY_FRIEND_ERROR, true));
-    } else return next(new LoggerApiError(err, 500));
+    const error = err instanceof PrismaClientKnownRequestError;
+    if (error && err.code === "P2002") {
+      return next(new ApiError(409, ALREADY_REQUEST_SENT_ERROR, true));
+    } else if (error && err.code === "P2003") {
+      return next(new ApiError(404, "User"));
+    } else {
+      return next(new LoggerApiError(err, 500));
+    }
   }
 };
 
@@ -45,15 +56,53 @@ export const AcceptFriendRequestController: RequestHandler = async (
     return next(new BodyValidationError(validatedRes.array()));
 
   const userId = (req.user as ExpressUser).id;
-  const { friendId, id } = req.body as { [FRIEND_ID]: string; id: string }; //id for row identification
+  const { friendId } = req.body as { [FRIEND_ID]: string; id: string };
+  try {
+    await dbClient.$transaction([
+      dbClient.friendshipRequest.deleteMany({
+        where: {
+          OR: [
+            { userId, friendId },
+            { userId: friendId, friendId: userId },
+          ],
+        },
+      }),
+      dbClient.acceptedFriendship.create({
+        data: { userId1: userId, userId2: friendId },
+      }),
+    ]);
+    res.status(200).json({ data: true });
+  } catch (err) {
+    return next(new LoggerApiError(err, 500));
+  }
+};
+
+export const RejectOrCancelFriendRequestController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const validatedRes = validationResult(req);
+  if (!validatedRes.isEmpty()) {
+    return next(new BodyValidationError(validatedRes.array()));
+  }
+
+  const userId = (req.user as ExpressUser).id;
+  const { friendId } = req.body;
 
   try {
-    const updatedStatus = await dbClient.friendship.update({
-      where: { id: id, userId, friendId },
-      data: { isAccepted: true },
-      select: { isAccepted: true },
-    });
-    res.status(200).json({ data: updatedStatus });
+    await dbClient.$transaction([
+      dbClient.friendshipRequest.deleteMany({
+        where: {
+          OR: [
+            { userId, friendId },
+            { userId: friendId, friendId: userId },
+          ],
+        },
+      }),
+    ]);
+
+    res.status(200).json({ data: true });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
   }
@@ -64,13 +113,17 @@ export const GetPendingRequestsController: RequestHandler = async (
   res,
   next
 ) => {
-  const userId = (req.body as ExpressUser).id;
+  const userId = (req.user as ExpressUser).id;
+  const isReqSent = req.query.type === "sent";
+
+  const queryObj = isReqSent ? { userId: userId } : { friendId: userId };
+  const userOrFriend = isReqSent ? "friend" : "user";
+
   try {
-    const pendingRequests = await dbClient.friendship.findMany({
-      where: { userId, isAccepted: false },
+    const pendingRequests = await dbClient.friendshipRequest.findMany({
+      where: { ...queryObj },
       select: {
-        id: true,
-        friend: {
+        [userOrFriend]: {
           select: {
             username: true,
             id: true,
@@ -81,9 +134,9 @@ export const GetPendingRequestsController: RequestHandler = async (
     });
     const flattenRequests = pendingRequests.map((pr) => ({
       friendshipId: pr.id,
-      userId: pr.friend.id,
-      username: pr.friend.username,
-      imageUrl: pr.friend.profile!.picture,
+      userId: pr[userOrFriend]["id"],
+      username: pr[userOrFriend][USERNAME],
+      imageUrl: pr[userOrFriend]["profile"]["picture"],
     }));
     res.status(200).json({ data: flattenRequests });
   } catch (error) {
@@ -97,29 +150,49 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
   res,
   next
 ) => {
-  const userId = (req.body as ExpressUser).id;
+  const userId = (req.user as ExpressUser).id;
   try {
-    const pendingRequests = await dbClient.friendship.findMany({
-      where: { userId, isAccepted: true },
+    const acceptedFriends = await dbClient.user.findMany({
+      where: { id: userId },
       select: {
-        id: true,
-        friend: {
+        friendshipAsUser1: {
           select: {
-            username: true,
-            id: true,
-            profile: { select: { picture: true } },
+            user2: {
+              select: {
+                id: true,
+                username: true,
+                profile: { select: { picture: true } },
+              },
+            },
+          },
+        },
+        friendshipAsUser2: {
+          select: {
+            user1: {
+              select: {
+                id: true,
+                username: true,
+                profile: { select: { picture: true } },
+              },
+            },
           },
         },
       },
     });
 
-    const flattenRequests = pendingRequests.map((pr) => ({
-      friendshipId: pr.id,
-      userId: pr.friend.id,
-      username: pr.friend.username,
-      imageUrl: pr.friend.profile!.picture,
-    }));
-    res.status(200).json({ data: flattenRequests });
+    const flattenData = acceptedFriends.flatMap((item) => [
+      ...item.friendshipAsUser1.map(({ user2 }) => ({
+        id: user2.id,
+        username: user2.username,
+        picture: user2.profile?.picture,
+      })),
+      ...item.friendshipAsUser2.map(({ user1 }) => ({
+        id: user1.id,
+        username: user1.username,
+        picture: user1.profile?.picture,
+      })),
+    ]);
+    res.status(200).json({ data: flattenData });
   } catch (error) {
     logger.error(error);
     return next(new LoggerApiError(error, 500));

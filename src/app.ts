@@ -77,9 +77,6 @@ app.use(verifyAuth());
 
 app.use("/api/silent", silentRouter);
 app.use("/api/social", socialRouter);
-app.use("/api", (_, res) => {
-  res.json({ msg: "hello" });
-});
 
 app.use(errorMiddleware());
 

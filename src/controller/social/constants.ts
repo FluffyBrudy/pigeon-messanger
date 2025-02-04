@@ -5,4 +5,5 @@ export const UNKNOWN = "unknown";
 
 //msg
 export const FRIEND_REQUEST_SENT = "Friend request sent";
-export const ALREADY_FRIEND_ERROR = "You are already friend with this user";
+export const ALREADY_REQUEST_SENT_ERROR =
+  "You are already friend with this user";

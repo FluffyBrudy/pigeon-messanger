@@ -38,6 +38,12 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
             FriendshipFriend: {
               none: { userId },
             },
+            friendshipAsUser1: {
+              none: { userId2: userId },
+            },
+            friendshipAsUser2: {
+              none: { userId1: userId },
+            },
           },
           select: {
             id: true,
@@ -45,9 +51,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
             profile: { select: { picture: true } },
           },
           take: FIND_FRIEND_COUNT,
-          orderBy: {
-            created_at: "desc",
-          },
+          orderBy: { username: "asc" },
         });
         console.log(friendSuggestionUnknown);
         const flattenFriendSuggestionUnknown = friendSuggestionUnknown.map(
@@ -55,44 +59,55 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
             id: person.id,
             username: person.username,
             imageUrl: person.profile?.picture,
-            isAccepted: false,
           })
         );
         res.status(200).json({ data: flattenFriendSuggestionUnknown });
         break;
       case KNOWN:
-        const friendSuggestionKnown = await dbClient.friendship.findMany({
-          where: {
-            userId: (req.user as { id: string }).id,
-            user: {
-              username: {
-                startsWith: searchTerm,
+        const acceptedFriends = await dbClient.user.findMany({
+          ...cursor,
+          where: { id: userId },
+          select: {
+            friendshipAsUser1: {
+              select: {
+                user2: {
+                  select: {
+                    id: true,
+                    username: true,
+                    profile: { select: { picture: true } },
+                  },
+                },
               },
             },
-          },
-          select: {
-            user: {
+            friendshipAsUser2: {
               select: {
-                id: true,
-                username: true,
-                profile: { select: { picture: true } },
+                user1: {
+                  select: {
+                    id: true,
+                    username: true,
+                    profile: { select: { picture: true } },
+                  },
+                },
               },
             },
           },
           take: FIND_FRIEND_COUNT,
-          orderBy: {
-            created_at: "desc",
-          },
+          orderBy: { username: "asc" },
         });
-        const flattenFriendSuggestionKnown = friendSuggestionKnown.map(
-          (person) => ({
-            id: person.user.id,
-            username: person.user.username,
-            imageUrl: person.user.profile?.picture,
-            isAccepted: true,
-          })
-        );
-        res.status(200).json({ data: flattenFriendSuggestionKnown });
+
+        const flattenData = acceptedFriends.flatMap((item) => [
+          ...item.friendshipAsUser1.map(({ user2 }) => ({
+            id: user2.id,
+            username: user2.username,
+            picture: user2.profile?.picture,
+          })),
+          ...item.friendshipAsUser2.map(({ user1 }) => ({
+            id: user1.id,
+            username: user1.username,
+            picture: user1.profile?.picture,
+          })),
+        ]);
+        res.status(200).json({ data: flattenData });
         break;
       default:
         return next(new ApiError(400, "Bad filter", true));

@@ -7,4 +7,5 @@ export const findFriendsValidator = [
   searchTermBody,
 ];
 export const addFriendValidation = [idValidation(FRIEND_ID)];
-export const accetpFriendValidation = [idValidation(), idValidation(FRIEND_ID)];
+export const accetpFriendValidation = addFriendValidation;
+export const deleteOrCancelPendingRequestValidation = addFriendValidation;

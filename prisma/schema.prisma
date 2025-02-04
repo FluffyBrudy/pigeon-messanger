@@ -10,17 +10,19 @@ datasource db {
 }
 
 model User {
-  id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  username         String             @db.VarChar(50)
-  email            String             @unique
-  password         String             @db.VarChar(64)
-  created_at       DateTime           @default(now())
-  chatGroup        Group[]
-  message          Message[]
-  messageRecipient MessageRecipient[]
-  profile          Profile?
-  FriendshipUser   Friendship[]       @relation("FriendshipUser")
-  FriendshipFriend Friendship[]       @relation("FriendshipFriend")
+  id                String               @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  username          String               @db.VarChar(50)
+  email             String               @unique
+  password          String               @db.VarChar(64)
+  created_at        DateTime             @default(now())
+  chatGroup         Group[]
+  message           Message[]
+  messageRecipient  MessageRecipient[]
+  profile           Profile?
+  FriendshipUser    FriendshipRequest[]  @relation("FriendshipRequestUser")
+  FriendshipFriend  FriendshipRequest[]  @relation("FriendshipRequestFriend")
+  friendshipAsUser1 AcceptedFriendship[] @relation("AcceptedFriendshipUserOne")
+  friendshipAsUser2 AcceptedFriendship[] @relation("AcceptedFriendshipUserTwo")
 
   @@schema("public")
 }
@@ -86,16 +88,28 @@ model Profile {
   @@schema("public")
 }
 
-model Friendship {
-  id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+model FriendshipRequest {
   userId     String   @db.Uuid
   friendId   String   @db.Uuid
   created_at DateTime @default(now())
-  user       User     @relation("FriendshipUser", fields: [userId], references: [id], onDelete: Cascade)
-  friend     User     @relation("FriendshipFriend", fields: [friendId], references: [id], onDelete: Cascade)
-  isAccepted Boolean  @default(false)
+  user       User     @relation("FriendshipRequestUser", fields: [userId], references: [id], onDelete: Cascade)
+  friend     User     @relation("FriendshipRequestFriend", fields: [friendId], references: [id], onDelete: Cascade)
 
   @@unique([userId, friendId])
   @@index([userId])
+  @@index([friendId])
+  @@schema("public")
+}
+
+model AcceptedFriendship {
+  id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  userId1 String @db.Uuid
+  userId2 String @db.Uuid
+
+  user1 User @relation("AcceptedFriendshipUserOne", fields: [userId1], references: [id], onDelete: Cascade)
+  user2 User @relation("AcceptedFriendshipUserTwo", fields: [userId2], references: [id], onDelete: Cascade)
+
+  @@unique([userId1, userId2])
+  @@unique([userId2, userId1])
   @@schema("public")
 }
