@@ -8,7 +8,11 @@ import {
 import { dbClient } from "../../service/dbClient";
 import { ExpressUser } from "../../types/common";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
-import { ALREADY_REQUEST_SENT_ERROR, FRIEND_REQUEST_SENT } from "./constants";
+import {
+  ALREADY_REQUEST_SENT_ERROR,
+  FRIEND_REQUEST_SENT,
+  ALREADY_FRIEND_ERROR,
+} from "./constants";
 import { FRIEND_ID } from "../../validator/social/constants";
 import { logger } from "../../logger/logger";
 import { USERNAME } from "../../validator/auth/constants";
@@ -57,6 +61,7 @@ export const AcceptFriendRequestController: RequestHandler = async (
 
   const userId = (req.user as ExpressUser).id;
   const { friendId } = req.body as { [FRIEND_ID]: string; id: string };
+  const usersIds = [userId, friendId].sort();
   try {
     await dbClient.$transaction([
       dbClient.friendshipRequest.deleteMany({
@@ -68,12 +73,17 @@ export const AcceptFriendRequestController: RequestHandler = async (
         },
       }),
       dbClient.acceptedFriendship.create({
-        data: { userId1: userId, userId2: friendId },
+        data: { userId1: usersIds[0], userId2: friendId },
       }),
     ]);
     res.status(200).json({ data: true });
   } catch (err) {
-    return next(new LoggerApiError(err, 500));
+    const error = err instanceof PrismaClientKnownRequestError;
+    if (error && err.code === "P2002") {
+      return next(new ApiError(409, ALREADY_FRIEND_ERROR, true));
+    } else {
+      return next(new LoggerApiError(err, 500));
+    }
   }
 };
 
@@ -133,7 +143,6 @@ export const GetPendingRequestsController: RequestHandler = async (
       },
     });
     const flattenRequests = pendingRequests.map((pr) => ({
-      friendshipId: pr.id,
       userId: pr[userOrFriend]["id"],
       username: pr[userOrFriend][USERNAME],
       imageUrl: pr[userOrFriend]["profile"]["picture"],
@@ -182,19 +191,18 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
 
     const flattenData = acceptedFriends.flatMap((item) => [
       ...item.friendshipAsUser1.map(({ user2 }) => ({
-        id: user2.id,
+        userId: user2.id,
         username: user2.username,
-        picture: user2.profile?.picture,
+        imageUrl: user2.profile?.picture,
       })),
       ...item.friendshipAsUser2.map(({ user1 }) => ({
-        id: user1.id,
+        userId: user1.id,
         username: user1.username,
-        picture: user1.profile?.picture,
+        imageUrl: user1.profile?.picture,
       })),
     ]);
     res.status(200).json({ data: flattenData });
-  } catch (error) {
-    logger.error(error);
-    return next(new LoggerApiError(error, 500));
+  } catch (err) {
+    return next(new LoggerApiError(err, 500));
   }
 };
