@@ -8,7 +8,7 @@ import { API, SOCIAL } from "../../router/constants";
 describe("FriendRequest test", () => {
   const friendRequestRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.FRIEND_REQUEST;
   const pendingRequestsRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.PENDING_REQUESTS;
-  const acceptRequestRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.ACCEPTED_REQUESTS;
+  const acceptRequestRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.ACCEPT_REQUEST;
   const sender = {
     username: "Sam",
     email: "apple@gmail.com",
@@ -71,7 +71,7 @@ describe("FriendRequest test", () => {
       .set("Authorization", `Bearer ${accessToken1}`)
       .type("json")
       .send({ [FRIEND_ID]: id2 });
-
+    console.log(accessToken1);
     expect(respones.status).toBe(200);
     expect(respones.body.data).toBeTruthy();
   });

@@ -13,7 +13,6 @@ export enum SOCIAL {
   FRIENDS_SEARCH = "/friends/search",
   FRIEND_REQUEST = "/friends/requests",
   PENDING_REQUESTS = "/friends/requests/pending",
-  PENDING_REQUESTS_BY_TYPE = "/friends/requests/pending/:type",
   ACCEPTED_REQUESTS = "/friends/requests/accepted",
   ACCEPT_REQUEST = "/friends/requests/accept",
   REJECT_REQUEST = "/friends/requests/reject",

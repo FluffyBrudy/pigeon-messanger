@@ -38,7 +38,6 @@ socialRouter.post(
   AddFriendController
 );
 
-socialRouter.get(SOCIAL.PENDING_REQUESTS_BY_TYPE, GetPendingRequestsController);
 socialRouter.get(SOCIAL.PENDING_REQUESTS, GetPendingRequestsController);
 
 socialRouter.get(SOCIAL.ACCEPTED_REQUESTS, GetAcceptedFriendRequestsController);
