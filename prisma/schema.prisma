@@ -15,27 +15,27 @@ model User {
   email             String               @unique
   password          String               @db.VarChar(64)
   created_at        DateTime             @default(now())
+  friendshipAsUser1 AcceptedFriendship[] @relation("AcceptedFriendshipUserOne")
+  friendshipAsUser2 AcceptedFriendship[] @relation("AcceptedFriendshipUserTwo")
+  FriendshipFriend  FriendshipRequest[]  @relation("FriendshipRequestFriend")
+  FriendshipUser    FriendshipRequest[]  @relation("FriendshipRequestUser")
   chatGroup         Group[]
   message           Message[]
   messageRecipient  MessageRecipient[]
   profile           Profile?
-  FriendshipUser    FriendshipRequest[]  @relation("FriendshipRequestUser")
-  FriendshipFriend  FriendshipRequest[]  @relation("FriendshipRequestFriend")
-  friendshipAsUser1 AcceptedFriendship[] @relation("AcceptedFriendshipUserOne")
-  friendshipAsUser2 AcceptedFriendship[] @relation("AcceptedFriendshipUserTwo")
 
   @@schema("public")
 }
 
 model Group {
-  id               String             @id(map: "Group_pkey") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   name             String             @db.VarChar(50)
   createdAt        DateTime?          @default(now()) @db.Date
   isActive         Boolean?           @default(false)
   adminId          String             @db.Uuid
   admin            User               @relation(fields: [adminId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ChatGroup_admin_id_fk")
-  messageRecipient MessageRecipient[]
   GroupMessage     GroupMessage[]
+  messageRecipient MessageRecipient[]
 
   @@schema("public")
 }
@@ -47,9 +47,9 @@ model Message {
   parentMessageId  String?            @db.Uuid
   expiryDate       DateTime?          @db.Date
   creatorId        String             @db.Uuid
+  GroupMessage     GroupMessage[]
   creator          User               @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   messageRecipient MessageRecipient[]
-  GroupMessage     GroupMessage[]
 
   @@schema("public")
 }
@@ -58,10 +58,10 @@ model GroupMessage {
   id         String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   group_id   String   @db.Uuid
   message_id String   @db.Uuid
-  group      Group    @relation(fields: [group_id], references: [id])
-  message    Message  @relation(fields: [message_id], references: [id])
   created_at DateTime
   is_active  Boolean  @default(false)
+  group      Group    @relation(fields: [group_id], references: [id])
+  message    Message  @relation(fields: [message_id], references: [id])
 
   @@schema("public")
 }
@@ -92,8 +92,8 @@ model FriendshipRequest {
   userId     String   @db.Uuid
   friendId   String   @db.Uuid
   created_at DateTime @default(now())
-  user       User     @relation("FriendshipRequestUser", fields: [userId], references: [id], onDelete: Cascade)
   friend     User     @relation("FriendshipRequestFriend", fields: [friendId], references: [id], onDelete: Cascade)
+  user       User     @relation("FriendshipRequestUser", fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, friendId])
   @@index([userId])
@@ -105,9 +105,8 @@ model AcceptedFriendship {
   id      String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   userId1 String @db.Uuid
   userId2 String @db.Uuid
-
-  user1 User @relation("AcceptedFriendshipUserOne", fields: [userId1], references: [id], onDelete: Cascade)
-  user2 User @relation("AcceptedFriendshipUserTwo", fields: [userId2], references: [id], onDelete: Cascade)
+  user1   User   @relation("AcceptedFriendshipUserOne", fields: [userId1], references: [id], onDelete: Cascade)
+  user2   User   @relation("AcceptedFriendshipUserTwo", fields: [userId2], references: [id], onDelete: Cascade)
 
   @@unique([userId1, userId2])
   @@unique([userId2, userId1])

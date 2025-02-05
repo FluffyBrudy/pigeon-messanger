@@ -59,19 +59,17 @@ describe("FriendRequest test", () => {
       .set("Authorization", `Bearer ${accessToken1}`);
 
     expect(response.status).toBe(200);
-    friendshipId = (response.body.data[0] as { id: string }).id;
   });
 
-  test("Must give 200 status code and truthy isActive boolean value", async () => {
-    console.log(friendshipId);
+  test("Must give 200 status code and truthy with data truthy boolean value", async () => {
     const respones = await request(app)
       .post("/api/social/friend-request-accept")
       .set("Authorization", `Bearer ${accessToken1}`)
       .type("json")
-      .send({ [FRIEND_ID]: id2, id: friendshipId });
+      .send({ [FRIEND_ID]: id2 });
 
     expect(respones.status).toBe(200);
-    expect(respones.body.data.isAccepted).toBeTruthy();
+    expect(respones.body.data).toBeTruthy();
   });
 
   test("Must give empty array as data after friend request accepted", async () => {

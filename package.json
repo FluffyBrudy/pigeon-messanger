@@ -22,7 +22,7 @@
     "start": "ts-node src/index.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.3.0",
+    "@prisma/client": "^6.3.1",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -50,7 +50,7 @@
     "@types/supertest": "^6.0.2",
     "express-list-endpoints": "^7.1.1",
     "nodemon": "^3.1.9",
-    "prisma": "^6.3.0",
+    "prisma": "^6.3.1",
     "supertest": "^7.0.0",
     "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
