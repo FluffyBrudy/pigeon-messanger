@@ -2,14 +2,7 @@ import { app } from "../../app";
 import request from "supertest";
 import { dbClient } from "../../service/dbClient";
 import { ACCESS_TOKEN } from "../../controller/auth/constants";
-
-beforeAll(async () => {
-  await dbClient.$connect();
-});
-
-afterAll(async () => {
-  await dbClient.user.deleteMany();
-});
+import { API, AUTH } from "../../router/constants";
 
 const data = {
   username: "Sam",
@@ -18,14 +11,22 @@ const data = {
 };
 
 describe("Login Route", () => {
+  beforeAll(async () => {
+    await dbClient.$connect();
+  });
+
+  afterAll(async () => {
+    await dbClient.user.deleteMany();
+  });
+
   test("Must return status code 200 after login", (done) => {
     request(app)
-      .post("/api/auth/register")
+      .post(`${API.ROOT}${AUTH.ROOT}${AUTH.REGISTER}`) // Use constants for the route
       .type("json")
       .send(data)
       .then(() => {
         request(app)
-          .post("/api/auth/login")
+          .post(`${API.ROOT}${AUTH.ROOT}${AUTH.LOGIN}`) // Use constants for the route
           .type("json")
           .send(data)
           .then((res) => {

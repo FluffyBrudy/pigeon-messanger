@@ -5,7 +5,7 @@ import {
   accetpFriendValidation,
   addFriendValidation,
   findFriendsValidator,
-  deleteOrCancelPendingRequestValidation
+  deleteOrCancelPendingRequestValidation,
 } from "../validator/social/social";
 
 import {
@@ -13,8 +13,9 @@ import {
   AddFriendController,
   GetAcceptedFriendRequestsController,
   GetPendingRequestsController,
-  RejectOrCancelFriendRequestController
+  RejectOrCancelFriendRequestController,
 } from "../controller/social/FriendRequestController";
+import { SOCIAL } from "./constants";
 
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
@@ -24,7 +25,7 @@ const limiter = rateLimit({
 const socialRouter = Router();
 
 socialRouter.post(
-  "/friends-search",
+  SOCIAL.FRIENDS_SEARCH,
   limiter,
 
   findFriendsValidator,
@@ -32,29 +33,26 @@ socialRouter.post(
 );
 
 socialRouter.post(
-  "/add-friend-request",
+  SOCIAL.FRIEND_REQUEST,
   addFriendValidation,
   AddFriendController
 );
 
-socialRouter.get("/pending-friends-request/:type", GetPendingRequestsController);
-socialRouter.get("/pending-friends-request", GetPendingRequestsController);
+socialRouter.get(SOCIAL.PENDING_REQUESTS_BY_TYPE, GetPendingRequestsController);
+socialRouter.get(SOCIAL.PENDING_REQUESTS, GetPendingRequestsController);
 
-socialRouter.get(
-  "/accepted-friend-request",
-  GetAcceptedFriendRequestsController
-);
+socialRouter.get(SOCIAL.ACCEPTED_REQUESTS, GetAcceptedFriendRequestsController);
 
 socialRouter.post(
-  "/friend-request-accept",
+  SOCIAL.ACCEPT_REQUEST,
   accetpFriendValidation,
   AcceptFriendRequestController
 );
 
 socialRouter.post(
-  "/pending-request-reject",
+  SOCIAL.REJECT_REQUEST,
   deleteOrCancelPendingRequestValidation,
   RejectOrCancelFriendRequestController
-)
+);
 
 export { socialRouter };

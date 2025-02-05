@@ -4,8 +4,10 @@ import { dbClient } from "../../service/dbClient";
 import { SEARCH_TERM } from "../../validator/social/constants";
 import { FILTER, UNKNOWN } from "../../controller/social/constants";
 import { registerUsers, loginUser } from "../testUtils/authUtils";
+import { API, SOCIAL } from "../../router/constants";
 
 describe("Must return us", () => {
+  const findFriendRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.FRIENDS_SEARCH;
   beforeAll(async () => {
     await dbClient.$connect();
     const users = [
@@ -34,7 +36,7 @@ describe("Must return us", () => {
     expect(data.accessToken).not.toBeFalsy();
 
     const res = await request(app)
-      .post("/api/social/friends-search")
+      .post(findFriendRoute)
       .set("Authorization", `Bearer ${data.accessToken}`)
       .type("json")
       .send({ [SEARCH_TERM]: "j", [FILTER]: UNKNOWN });

@@ -13,6 +13,8 @@ import { authRouter } from "./router/authRouter";
 import { socialRouter } from "./router/socialRouter";
 import { verifyAuth } from "./middleware/authVerification";
 import { silentRouter } from "./router/silentRouter";
+import { apiRouter } from "./router/apiRouter";
+import { API } from "./router/constants";
 
 declare global {
   namespace Express {
@@ -71,12 +73,7 @@ app.use(expressSessionConfig);
 app.use(passport.session());
 passport.use(strategy);
 
-app.use("/api/auth", authRouter);
-
-app.use(verifyAuth());
-
-app.use("/api/silent", silentRouter);
-app.use("/api/social", socialRouter);
+app.use(API.ROOT, apiRouter);
 
 app.use(errorMiddleware());
 

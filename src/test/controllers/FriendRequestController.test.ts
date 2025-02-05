@@ -3,8 +3,12 @@ import { dbClient } from "../../service/dbClient";
 import { loginUser, registerUsers } from "../testUtils/authUtils";
 import { app } from "../../app";
 import { FRIEND_ID } from "../../validator/social/constants";
+import { API, SOCIAL } from "../../router/constants";
 
 describe("FriendRequest test", () => {
+  const friendRequestRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.FRIEND_REQUEST;
+  const pendingRequestsRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.PENDING_REQUESTS;
+  const acceptRequestRoute = API.ROOT + SOCIAL.ROOT + SOCIAL.ACCEPTED_REQUESTS;
   const sender = {
     username: "Sam",
     email: "apple@gmail.com",
@@ -45,7 +49,7 @@ describe("FriendRequest test", () => {
 
   test("Must give 200 status code after sending friend request ", async () => {
     const response = await request(app)
-      .post("/api/social/add-friend-request")
+      .post(friendRequestRoute)
       .set("Authorization", `Bearer ${accessToken1}`)
       .type("json")
       .send({ [FRIEND_ID]: id2 });
@@ -55,7 +59,7 @@ describe("FriendRequest test", () => {
 
   test("Must give 200 status code after pending friend request lookup", async () => {
     const response = await request(app)
-      .get("/api/social/pending-friends-request")
+      .get(pendingRequestsRoute)
       .set("Authorization", `Bearer ${accessToken1}`);
 
     expect(response.status).toBe(200);
@@ -63,7 +67,7 @@ describe("FriendRequest test", () => {
 
   test("Must give 200 status code and truthy with data truthy boolean value", async () => {
     const respones = await request(app)
-      .post("/api/social/friend-request-accept")
+      .post(acceptRequestRoute)
       .set("Authorization", `Bearer ${accessToken1}`)
       .type("json")
       .send({ [FRIEND_ID]: id2 });
@@ -74,7 +78,7 @@ describe("FriendRequest test", () => {
 
   test("Must give empty array as data after friend request accepted", async () => {
     const response = await request(app)
-      .get("/api/social/pending-friends-request")
+      .get(pendingRequestsRoute)
       .set("Authorization", `Bearer ${accessToken1}`);
 
     expect(response.status).toBe(200);
