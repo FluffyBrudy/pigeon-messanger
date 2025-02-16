@@ -18,6 +18,12 @@ export enum SOCIAL {
   REJECT_REQUEST = "/friends/requests/reject",
 }
 
+export enum CHAT {
+  ROOT = "/chat",
+  MESSAGE_CREATE = "/message/create",
+  MESSAGE_FETCH = "/message/fetch",
+}
+
 export enum SILENT {
   ROOT = "/silent",
   LOGIN = "/login",
