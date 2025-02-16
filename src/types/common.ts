@@ -6,3 +6,5 @@ export type RegisterBody = {
   [EMAIL]: string;
   [PASSWORD]: string;
 };
+
+export type TCursor = { cursor: { id: string } } | {};
