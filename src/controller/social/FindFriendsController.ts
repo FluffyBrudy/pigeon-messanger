@@ -8,9 +8,8 @@ import {
 import { dbClient } from "../../service/dbClient";
 import { FILTER, FIND_FRIEND_COUNT, KNOWN, UNKNOWN } from "./constants";
 import { CURSOR, SEARCH_TERM } from "../../validator/social/constants";
-import { ExpressUser } from "../../types/common";
+import { ExpressUser, TCursor } from "../../types/common";
 
-type TCursor = { cursor: string } | {};
 type Filter = typeof KNOWN | typeof UNKNOWN;
 
 const FindFriendsController: RequestHandler = async (req, res, next) => {
@@ -22,7 +21,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
   const cursorId = req.body[CURSOR];
   const searchTerm = req.body[SEARCH_TERM];
   const filter: Filter = req.body[FILTER] || UNKNOWN;
-  const cursor: TCursor = cursorId ? { id: cursorId } : {};
+  const cursor: TCursor = cursorId ? { cursor: { id: cursorId } } : {};
 
   try {
     switch (filter) {
@@ -53,7 +52,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
           take: FIND_FRIEND_COUNT,
           orderBy: { username: "asc" },
         });
-        console.log(friendSuggestionUnknown);
+
         const flattenFriendSuggestionUnknown = friendSuggestionUnknown.map(
           (person) => ({
             id: person.id,
