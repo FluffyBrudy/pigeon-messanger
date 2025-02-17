@@ -4,6 +4,7 @@ import { BodyValidationError, LoggerApiError } from "../../error/error";
 import { ExpressUser, TCursor } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 import { CURSOR } from "../../validator/social/constants";
+import { LIMIT } from "./constants";
 
 interface MessageReqBody {
   recipientId: string;
@@ -33,6 +34,7 @@ export const CreateChatMessageController: RequestHandler = async (
         },
       },
       select: {
+        id: true,
         creatorId: true,
         messageBody: true,
         messageRecipient: { select: { recipientId: true } },
@@ -40,7 +42,7 @@ export const CreateChatMessageController: RequestHandler = async (
     });
     const flattenResponse = {
       creatorId: messageItem.creatorId,
-      recipientId: messageItem.messageRecipient[0].recipientId,
+      id: messageItem.id,
       message: messageItem.messageBody,
     };
     res.json({ data: flattenResponse });
@@ -80,13 +82,21 @@ export const FetchChatMessageController: RequestHandler = async (
         ],
       },
       select: {
+        id: true,
         creatorId: true,
         messageBody: true,
       },
       orderBy: { createdAt: "desc" },
-      take: 50,
+      take: LIMIT,
+      skip: cursorId ? 1 : 0,
     });
-    res.json({ data: chats });
+    const idFilteredChats = chats.map((chat) => ({
+      creatorId: chat.creatorId,
+      messageBody: chat.messageBody,
+    }));
+    res.json({
+      data: { chats: idFilteredChats, limit: LIMIT, cursor: chats.at(-1)?.id },
+    });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
   }
