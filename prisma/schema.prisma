@@ -43,7 +43,7 @@ model Group {
 model Message {
   id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   messageBody      String
-  createdAt        DateTime?          @default(now()) @db.Date
+  createdAt        DateTime?          @default(now()) @db.Timestamptz()
   parentMessageId  String?            @db.Uuid
   expiryDate       DateTime?          @db.Date
   creatorId        String             @db.Uuid
