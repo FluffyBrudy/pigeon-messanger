@@ -73,7 +73,7 @@ export const AcceptFriendRequestController: RequestHandler = async (
         },
       }),
       dbClient.acceptedFriendship.create({
-        data: { userId1: usersIds[0], userId2: friendId },
+        data: { userId1: usersIds[0], userId2: usersIds[1] },
       }),
     ]);
     res.status(200).json({ data: true });
