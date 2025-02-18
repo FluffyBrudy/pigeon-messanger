@@ -45,7 +45,9 @@ class ApiError extends Error {
     this.status = status;
   }
 }
-
+/**
+ * will logs nothing in production but only developemental
+ */
 class LoggerApiError extends ApiError {
   constructor(
     trueError: any,
@@ -54,7 +56,9 @@ class LoggerApiError extends ApiError {
     fullReplace: boolean = false
   ) {
     super(status, msgPrefixOrMsg, fullReplace);
-    logger.error(trueError);
+    if (process.env.NODE_ENV !== "prod") {
+      logger.error(trueError);
+    }
   }
 }
 
