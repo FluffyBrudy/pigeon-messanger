@@ -9,10 +9,6 @@ import { dbClient } from "./service/dbClient";
 import { ExpressUser } from "./types/common";
 import { ApiError } from "./error/error";
 import { errorMiddleware } from "./middleware/errorMiddleware";
-import { authRouter } from "./router/authRouter";
-import { socialRouter } from "./router/socialRouter";
-import { verifyAuth } from "./middleware/authVerification";
-import { silentRouter } from "./router/silentRouter";
 import { apiRouter } from "./router/apiRouter";
 import { API } from "./router/constants";
 
