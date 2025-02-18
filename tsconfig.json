@@ -1,18 +1,18 @@
 {
-  "compilerOptions": {
-    "target": "ES6",
-
-    "module": "commonjs",
-
-    "esModuleInterop": true,
-
-    "forceConsistentCasingInFileNames": true,
-
-    "strict": true,
-
-    "skipLibCheck": true,
-    "outDir": "./dist"
-  },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules"]
+  "version": 2,
+  "builds": [
+    {
+      "src": "src/index.ts",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": ["dist/**"]
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "src/index.ts"
+    }
+  ]
 }
