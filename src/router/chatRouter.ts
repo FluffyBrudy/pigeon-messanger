@@ -2,10 +2,12 @@ import { Router } from "express";
 import {
   CreateChatMessageController,
   FetchChatMessageController,
+  FetchSingleLatestMessage,
 } from "../controller/chat/ChatController";
 import {
   createMessageValidation,
   fetchMessageValidation,
+  fetchSingleLatestMessageValidation,
 } from "../validator/chat/chat";
 import { CHAT } from "./constants";
 
@@ -20,6 +22,11 @@ chatRouter.post(
   CHAT.MESSAGE_FETCH,
   fetchMessageValidation,
   FetchChatMessageController
+);
+chatRouter.post(
+  CHAT.MESSAGE_SINGLE,
+  fetchSingleLatestMessageValidation,
+  FetchSingleLatestMessage
 );
 
 export { chatRouter };

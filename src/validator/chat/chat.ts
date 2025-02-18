@@ -1,4 +1,4 @@
-import { CURSOR } from "../social/constants";
+import { CURSOR, FRIEND_ID } from "../social/constants";
 import { idValidation } from "../validatorHelper";
 import { RECIPIENT_ID } from "./constants";
 import { messageValidationBody } from "./validationBody";
@@ -12,3 +12,5 @@ export const fetchMessageValidation = [
   idValidation(RECIPIENT_ID),
   idValidation(CURSOR, true),
 ];
+
+export const fetchSingleLatestMessageValidation = [idValidation(RECIPIENT_ID)];

@@ -22,6 +22,7 @@ export enum CHAT {
   ROOT = "/chat",
   MESSAGE_CREATE = "/message/create",
   MESSAGE_FETCH = "/message/fetch",
+  MESSAGE_SINGLE = "message/fetch/latest",
 }
 
 export enum SILENT {

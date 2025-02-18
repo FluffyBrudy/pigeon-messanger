@@ -5,6 +5,7 @@ import { ExpressUser, TCursor } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 import { CURSOR } from "../../validator/social/constants";
 import { LIMIT } from "./constants";
+import { RECIPIENT_ID } from "../../validator/chat/constants";
 
 interface MessageReqBody {
   recipientId: string;
@@ -99,5 +100,43 @@ export const FetchChatMessageController: RequestHandler = async (
     });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
+  }
+};
+
+export const FetchSingleLatestMessage: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  const validatedRes = validationResult(req);
+  if (!validatedRes.isEmpty()) {
+    return next(new BodyValidationError(validatedRes.array()));
+  }
+
+  const recipientId = req.body[RECIPIENT_ID] as string;
+  const creatorId = (req.user as ExpressUser).id;
+  try {
+    const latestMsg = await dbClient.message.findFirst({
+      where: {
+        OR: [
+          {
+            creatorId: creatorId,
+            messageRecipient: { some: { recipientId: recipientId } },
+          },
+          {
+            creatorId: recipientId,
+            messageRecipient: { some: { recipientId: creatorId } },
+          },
+        ],
+      },
+      select: {
+        creatorId: true,
+        messageBody: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json({ data: latestMsg });
+  } catch (error) {
+    return next(new LoggerApiError(error, 500));
   }
 };

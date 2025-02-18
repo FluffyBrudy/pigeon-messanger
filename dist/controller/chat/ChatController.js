@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FetchChatMessageController = exports.CreateChatMessageController = void 0;
+exports.FetchSingleLatestMessage = exports.FetchChatMessageController = exports.CreateChatMessageController = void 0;
 const express_validator_1 = require("express-validator");
 const error_1 = require("../../error/error");
 const dbClient_1 = require("../../service/dbClient");
@@ -90,3 +90,37 @@ const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0,
     }
 });
 exports.FetchChatMessageController = FetchChatMessageController;
+const FetchSingleLatestMessage = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const validatedRes = (0, express_validator_1.validationResult)(req);
+    if (!validatedRes.isEmpty()) {
+        return next(new error_1.BodyValidationError(validatedRes.array()));
+    }
+    const friendId = req.body[constants_1.FRIEND_ID];
+    const userId = req.user.id;
+    try {
+        const latestMsg = yield dbClient_1.dbClient.message.findFirst({
+            where: {
+                OR: [
+                    {
+                        creatorId: userId,
+                        messageRecipient: { some: { recipientId: friendId } },
+                    },
+                    {
+                        creatorId: friendId,
+                        messageRecipient: { some: { recipientId: userId } },
+                    },
+                ],
+            },
+            select: {
+                creatorId: true,
+                messageBody: true,
+            },
+            orderBy: { createdAt: "desc" },
+        });
+        res.json({ data: latestMsg });
+    }
+    catch (error) {
+        return next(new error_1.LoggerApiError(error, 500));
+    }
+});
+exports.FetchSingleLatestMessage = FetchSingleLatestMessage;
