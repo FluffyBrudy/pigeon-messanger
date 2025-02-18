@@ -154,6 +154,11 @@ const GetAcceptedFriendRequestsController = (req, res, next) => __awaiter(void 0
                                 id: true,
                                 username: true,
                                 profile: { select: { picture: true } },
+                                message: {
+                                    select: { messageBody: true },
+                                    orderBy: { createdAt: "desc" },
+                                    take: 1,
+                                },
                             },
                         },
                     },
@@ -165,6 +170,11 @@ const GetAcceptedFriendRequestsController = (req, res, next) => __awaiter(void 0
                                 id: true,
                                 username: true,
                                 profile: { select: { picture: true } },
+                                message: {
+                                    select: { messageBody: true },
+                                    orderBy: { createdAt: "desc" },
+                                    take: 1,
+                                },
                             },
                         },
                     },
@@ -178,6 +188,7 @@ const GetAcceptedFriendRequestsController = (req, res, next) => __awaiter(void 0
                     userId: user2.id,
                     username: user2.username,
                     imageUrl: (_a = user2.profile) === null || _a === void 0 ? void 0 : _a.picture,
+                    latestMessage: user2.message[0].messageBody,
                 });
             }),
             ...item.friendshipAsUser2.map(({ user1 }) => {
@@ -186,6 +197,7 @@ const GetAcceptedFriendRequestsController = (req, res, next) => __awaiter(void 0
                     userId: user1.id,
                     username: user1.username,
                     imageUrl: (_a = user1.profile) === null || _a === void 0 ? void 0 : _a.picture,
+                    latestMessage: user1.message[0].messageBody,
                 });
             }),
         ]);
