@@ -15,6 +15,7 @@ const error_1 = require("../../error/error");
 const dbClient_1 = require("../../service/dbClient");
 const constants_1 = require("../../validator/social/constants");
 const constants_2 = require("./constants");
+const constants_3 = require("../../validator/chat/constants");
 const CreateChatMessageController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const validatedRes = (0, express_validator_1.validationResult)(req);
     if (!validatedRes.isEmpty()) {
@@ -95,19 +96,19 @@ const FetchSingleLatestMessage = (req, res, next) => __awaiter(void 0, void 0, v
     if (!validatedRes.isEmpty()) {
         return next(new error_1.BodyValidationError(validatedRes.array()));
     }
-    const friendId = req.body[constants_1.FRIEND_ID];
-    const userId = req.user.id;
+    const recipientId = req.body[constants_3.RECIPIENT_ID];
+    const creatorId = req.user.id;
     try {
         const latestMsg = yield dbClient_1.dbClient.message.findFirst({
             where: {
                 OR: [
                     {
-                        creatorId: userId,
-                        messageRecipient: { some: { recipientId: friendId } },
+                        creatorId: creatorId,
+                        messageRecipient: { some: { recipientId: recipientId } },
                     },
                     {
-                        creatorId: friendId,
-                        messageRecipient: { some: { recipientId: userId } },
+                        creatorId: recipientId,
+                        messageRecipient: { some: { recipientId: creatorId } },
                     },
                 ],
             },

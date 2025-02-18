@@ -26,6 +26,7 @@ var CHAT;
     CHAT["ROOT"] = "/chat";
     CHAT["MESSAGE_CREATE"] = "/message/create";
     CHAT["MESSAGE_FETCH"] = "/message/fetch";
+    CHAT["MESSAGE_SINGLE"] = "/message/fetch/latest";
 })(CHAT || (exports.CHAT = CHAT = {}));
 var SILENT;
 (function (SILENT) {

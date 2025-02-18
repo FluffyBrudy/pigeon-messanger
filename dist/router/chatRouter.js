@@ -9,3 +9,4 @@ const chatRouter = (0, express_1.Router)();
 exports.chatRouter = chatRouter;
 chatRouter.post(constants_1.CHAT.MESSAGE_CREATE, chat_1.createMessageValidation, ChatController_1.CreateChatMessageController);
 chatRouter.post(constants_1.CHAT.MESSAGE_FETCH, chat_1.fetchMessageValidation, ChatController_1.FetchChatMessageController);
+chatRouter.post(constants_1.CHAT.MESSAGE_SINGLE, chat_1.fetchSingleLatestMessageValidation, ChatController_1.FetchSingleLatestMessage);
