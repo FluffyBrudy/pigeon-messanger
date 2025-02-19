@@ -164,9 +164,9 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
   const userId = (req.user as ExpressUser).id;
   try {
     const friends: {
-      userId: string;
+      id: string;
       username: string;
-      imageUrl: string;
+      picture: string;
     }[] = await dbClient.$queryRaw`
       SELECT 
         u.id, 
@@ -176,17 +176,22 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
       JOIN "User" u 
         ON u.id = (
           CASE 
-            WHEN af."userId1" = ${userId} THEN af."userId2" 
+            WHEN af."userId1" = ${userId}::UUID THEN af."userId2" 
             ELSE af."userId1" 
           END
         )
       LEFT JOIN "Profile" p 
         ON p."userId" = u.id
-      WHERE af."userId1" = ${userId} 
-        OR af."userId2" = ${userId};
-  `;
+      WHERE af."userId1" = ${userId}::UUID 
+        OR af."userId2" = ${userId}::UUID;
+`;
 
-    res.status(200).json({ data: friends });
+    const modifiedData = friends.map(({ id, username, picture }) => ({
+      userId: id,
+      username,
+      imageUrl: picture,
+    }));
+    res.status(200).json({ data: modifiedData });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
   }

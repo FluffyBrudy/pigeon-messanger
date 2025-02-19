@@ -156,16 +156,21 @@ const GetAcceptedFriendRequestsController = (req, res, next) => __awaiter(void 0
       JOIN "User" u 
         ON u.id = (
           CASE 
-            WHEN af."userId1" = ${userId} THEN af."userId2" 
+            WHEN af."userId1" = ${userId}::UUID THEN af."userId2" 
             ELSE af."userId1" 
           END
         )
       LEFT JOIN "Profile" p 
         ON p."userId" = u.id
-      WHERE af."userId1" = ${userId} 
-        OR af."userId2" = ${userId};
-  `;
-        res.status(200).json({ data: friends });
+      WHERE af."userId1" = ${userId}::UUID 
+        OR af."userId2" = ${userId}::UUID;
+`;
+        const modifiedData = friends.map(({ id, username, picture }) => ({
+            userId: id,
+            username,
+            imageUrl: picture,
+        }));
+        res.status(200).json({ data: modifiedData });
     }
     catch (err) {
         return next(new error_1.LoggerApiError(err, 500));
