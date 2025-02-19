@@ -24,10 +24,13 @@ export const AddFriendController: RequestHandler = async (req, res, next) => {
 
   const friendId = (req.body as { [FRIEND_ID]: string }).friendId;
   const userId = (req.user as ExpressUser).id;
+  const usersIds = [userId, friendId].sort();
 
   try {
     const alreadyFriended = await dbClient.acceptedFriendship.findUnique({
-      where: { userId1_userId2: { userId1: userId, userId2: friendId } },
+      where: {
+        userId1_userId2: { userId1: usersIds[0], userId2: usersIds[1] },
+      },
     });
     if (alreadyFriended) {
       return next(new ApiError(409, "You are already connected", true));
@@ -160,47 +163,30 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
 ) => {
   const userId = (req.user as ExpressUser).id;
   try {
-    const acceptedFriends = await dbClient.user.findMany({
-      where: { id: userId },
-      select: {
-        friendshipAsUser1: {
-          select: {
-            user2: {
-              select: {
-                id: true,
-                username: true,
-                profile: { select: { picture: true } },
-              },
-            },
-          },
-        },
-        friendshipAsUser2: {
-          select: {
-            user1: {
-              select: {
-                id: true,
-                username: true,
-                profile: { select: { picture: true } },
-              },
-            },
-          },
-        },
-      },
-    });
+    const friends: {
+      userId: string;
+      username: string;
+      imageUrl: string;
+    }[] = await dbClient.$queryRaw`
+      SELECT 
+        u.id, 
+        u.username, 
+        p."picture"
+      FROM "AcceptedFriendship" af
+      JOIN "User" u 
+        ON u.id = (
+          CASE 
+            WHEN af."userId1" = ${userId} THEN af."userId2" 
+            ELSE af."userId1" 
+          END
+        )
+      LEFT JOIN "Profile" p 
+        ON p."userId" = u.id
+      WHERE af."userId1" = ${userId} 
+        OR af."userId2" = ${userId};
+  `;
 
-    const flattenData = acceptedFriends.flatMap((item) => [
-      ...item.friendshipAsUser1.map(({ user2 }) => ({
-        userId: user2.id,
-        username: user2.username,
-        imageUrl: user2.profile?.picture,
-      })),
-      ...item.friendshipAsUser2.map(({ user1 }) => ({
-        userId: user1.id,
-        username: user1.username,
-        imageUrl: user1.profile?.picture,
-      })),
-    ]);
-    res.status(200).json({ data: flattenData });
+    res.status(200).json({ data: friends });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
   }

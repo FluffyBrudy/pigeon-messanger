@@ -24,9 +24,12 @@ const AddFriendController = (req, res, next) => __awaiter(void 0, void 0, void 0
         return next(new error_1.BodyValidationError(validatedRes.array()));
     const friendId = req.body.friendId;
     const userId = req.user.id;
+    const usersIds = [userId, friendId].sort();
     try {
         const alreadyFriended = yield dbClient_1.dbClient.acceptedFriendship.findUnique({
-            where: { userId1_userId2: { userId1: userId, userId2: friendId } },
+            where: {
+                userId1_userId2: { userId1: usersIds[0], userId2: usersIds[1] },
+            },
         });
         if (alreadyFriended) {
             return next(new error_1.ApiError(409, "You are already connected", true));
@@ -144,64 +147,25 @@ exports.GetPendingRequestsController = GetPendingRequestsController;
 const GetAcceptedFriendRequestsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const userId = req.user.id;
     try {
-        const acceptedFriends = yield dbClient_1.dbClient.user.findMany({
-            where: { id: userId },
-            select: {
-                friendshipAsUser1: {
-                    select: {
-                        user2: {
-                            select: {
-                                id: true,
-                                username: true,
-                                profile: { select: { picture: true } },
-                                message: {
-                                    select: { messageBody: true },
-                                    orderBy: { createdAt: "desc" },
-                                    take: 1,
-                                },
-                            },
-                        },
-                    },
-                },
-                friendshipAsUser2: {
-                    select: {
-                        user1: {
-                            select: {
-                                id: true,
-                                username: true,
-                                profile: { select: { picture: true } },
-                                message: {
-                                    select: { messageBody: true },
-                                    orderBy: { createdAt: "desc" },
-                                    take: 1,
-                                },
-                            },
-                        },
-                    },
-                },
-            },
-        });
-        const flattenData = acceptedFriends.flatMap((item) => [
-            ...item.friendshipAsUser1.map(({ user2 }) => {
-                var _a;
-                return ({
-                    userId: user2.id,
-                    username: user2.username,
-                    imageUrl: (_a = user2.profile) === null || _a === void 0 ? void 0 : _a.picture,
-                    latestMessage: user2.message[0].messageBody,
-                });
-            }),
-            ...item.friendshipAsUser2.map(({ user1 }) => {
-                var _a;
-                return ({
-                    userId: user1.id,
-                    username: user1.username,
-                    imageUrl: (_a = user1.profile) === null || _a === void 0 ? void 0 : _a.picture,
-                    latestMessage: user1.message[0].messageBody,
-                });
-            }),
-        ]);
-        res.status(200).json({ data: flattenData });
+        const friends = yield dbClient_1.dbClient.$queryRaw `
+      SELECT 
+        u.id, 
+        u.username, 
+        p."picture"
+      FROM "AcceptedFriendship" af
+      JOIN "User" u 
+        ON u.id = (
+          CASE 
+            WHEN af."userId1" = ${userId} THEN af."userId2" 
+            ELSE af."userId1" 
+          END
+        )
+      LEFT JOIN "Profile" p 
+        ON p."userId" = u.id
+      WHERE af."userId1" = ${userId} 
+        OR af."userId2" = ${userId};
+  `;
+        res.status(200).json({ data: friends });
     }
     catch (err) {
         return next(new error_1.LoggerApiError(err, 500));
