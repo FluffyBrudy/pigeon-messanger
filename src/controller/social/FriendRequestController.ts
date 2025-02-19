@@ -111,7 +111,6 @@ export const RejectOrCancelFriendRequestController: RequestHandler = async (
         },
       }),
     ]);
-
     res.status(200).json({ data: true });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
@@ -171,11 +170,6 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
                 id: true,
                 username: true,
                 profile: { select: { picture: true } },
-                message: {
-                  select: { messageBody: true },
-                  orderBy: { createdAt: "desc" },
-                  take: 1,
-                },
               },
             },
           },
@@ -187,11 +181,6 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
                 id: true,
                 username: true,
                 profile: { select: { picture: true } },
-                message: {
-                  select: { messageBody: true },
-                  orderBy: { createdAt: "desc" },
-                  take: 1,
-                },
               },
             },
           },
@@ -204,13 +193,11 @@ export const GetAcceptedFriendRequestsController: RequestHandler = async (
         userId: user2.id,
         username: user2.username,
         imageUrl: user2.profile?.picture,
-        latestMessage: user2.message[0].messageBody,
       })),
       ...item.friendshipAsUser2.map(({ user1 }) => ({
         userId: user1.id,
         username: user1.username,
         imageUrl: user1.profile?.picture,
-        latestMessage: user1.message[0].messageBody,
       })),
     ]);
     res.status(200).json({ data: flattenData });
