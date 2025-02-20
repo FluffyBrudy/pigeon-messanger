@@ -13,4 +13,4 @@ exports.fetchMessageValidation = [
     (0, validatorHelper_1.idValidation)(constants_2.RECIPIENT_ID),
     (0, validatorHelper_1.idValidation)(constants_1.CURSOR, true),
 ];
-exports.fetchSingleLatestMessageValidation = [(0, validatorHelper_1.idValidation)(constants_2.RECIPIENT_ID)];
+exports.fetchSingleLatestMessageValidation = validationBody_1.friendsIdsValidation;

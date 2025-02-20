@@ -96,29 +96,34 @@ const FetchSingleLatestMessage = (req, res, next) => __awaiter(void 0, void 0, v
     if (!validatedRes.isEmpty()) {
         return next(new error_1.BodyValidationError(validatedRes.array()));
     }
-    const recipientId = req.body[constants_3.RECIPIENT_ID];
-    const creatorId = req.user.id;
+    const userId = req.user.id;
+    const connectedFriendsId = req.body[constants_3.FRIENDS_IDS];
     try {
-        const latestMsg = yield dbClient_1.dbClient.message.findFirst({
-            where: {
-                OR: [
-                    {
-                        creatorId: creatorId,
-                        messageRecipient: { some: { recipientId: recipientId } },
-                    },
-                    {
-                        creatorId: recipientId,
-                        messageRecipient: { some: { recipientId: creatorId } },
-                    },
-                ],
-            },
-            select: {
-                creatorId: true,
-                messageBody: true,
-            },
-            orderBy: { createdAt: "desc" },
-        });
-        res.json({ data: latestMsg });
+        const latestMsgs = yield dbClient_1.dbClient.$queryRaw `
+    WITH userIds AS (
+      SELECT 
+        ${userId}::uuid AS userId,
+        unnest(${connectedFriendsId}::uuid[]) AS recipientId
+    )
+    SELECT 
+      ui.recipientId AS "RECIPIENT_ID",
+      m."messageBody" AS message
+    FROM userIds ui
+    JOIN LATERAL (
+      SELECT m."messageBody"
+      FROM "Message" m
+      JOIN "MessageRecipient" mr 
+        ON m.id = mr."messageId"
+      WHERE 
+        (m."creatorId" = ui.userId AND mr."recipientId" = ui.recipientId)
+        OR 
+        (m."creatorId" = ui.recipientId AND mr."recipientId" = ui.userId)
+      ORDER BY m."createdAt" DESC
+      LIMIT 1
+    ) m ON true
+    ORDER BY ui.userId;
+  `;
+        res.json({ data: latestMsgs });
     }
     catch (error) {
         return next(new error_1.LoggerApiError(error, 500));
