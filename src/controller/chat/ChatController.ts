@@ -5,10 +5,10 @@ import { ExpressUser, TCursor } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 import { CURSOR } from "../../validator/social/constants";
 import { LIMIT } from "./constants";
-import { RECIPIENT_ID } from "../../validator/chat/constants";
+import { FRIENDS_IDS, RECIPIENT_ID } from "../../validator/chat/constants";
 
 interface MessageReqBody {
-  recipientId: string;
+  [RECIPIENT_ID]: string;
   message: string;
 }
 
@@ -113,29 +113,34 @@ export const FetchSingleLatestMessage: RequestHandler = async (
     return next(new BodyValidationError(validatedRes.array()));
   }
 
-  const recipientId = req.body[RECIPIENT_ID] as string;
-  const creatorId = (req.user as ExpressUser).id;
+  const userId = (req.user as ExpressUser).id;
+  const connectedFriendsId = req.body[FRIENDS_IDS] as Array<string>;
   try {
-    const latestMsg = await dbClient.message.findFirst({
-      where: {
-        OR: [
-          {
-            creatorId: creatorId,
-            messageRecipient: { some: { recipientId: recipientId } },
-          },
-          {
-            creatorId: recipientId,
-            messageRecipient: { some: { recipientId: creatorId } },
-          },
-        ],
-      },
-      select: {
-        creatorId: true,
-        messageBody: true,
-      },
-      orderBy: { createdAt: "desc" },
-    });
-    res.json({ data: latestMsg });
+    const latestMsgs: Array<MessageReqBody> = await dbClient.$queryRaw`
+    WITH userIds AS (
+      SELECT 
+        ${userId}::uuid AS userId,
+        unnest(${connectedFriendsId}::uuid[]) AS recipientId
+    )
+    SELECT 
+      ui.recipientId AS "RECIPIENT_ID",
+      m."messageBody" AS message
+    FROM userIds ui
+    JOIN LATERAL (
+      SELECT m."messageBody"
+      FROM "Message" m
+      JOIN "MessageRecipient" mr 
+        ON m.id = mr."messageId"
+      WHERE 
+        (m."creatorId" = ui.userId AND mr."recipientId" = ui.recipientId)
+        OR 
+        (m."creatorId" = ui.recipientId AND mr."recipientId" = ui.userId)
+      ORDER BY m."createdAt" DESC
+      LIMIT 1
+    ) m ON true
+    ORDER BY ui.userId;
+  `;
+    res.json({ data: latestMsgs });
   } catch (error) {
     return next(new LoggerApiError(error, 500));
   }
