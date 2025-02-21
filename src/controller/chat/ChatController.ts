@@ -123,7 +123,7 @@ export const FetchSingleLatestMessage: RequestHandler = async (
         unnest(${connectedFriendsId}::uuid[]) AS recipientId
     )
     SELECT 
-      ui.recipientId AS "recipientId",
+      ui.recipientId AS "id",
       m."messageBody" AS message
     FROM userIds ui
     JOIN LATERAL (
