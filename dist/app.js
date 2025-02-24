@@ -69,6 +69,7 @@ app.use((0, cors_1.default)((req, cb) => {
 }));
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
 app.use(express_1.default.json());
+app.use(express_1.default.urlencoded({ extended: true }));
 app.use(expressSessionConfig);
 app.use(passport_1.default.session());
 passport_1.default.use(strategy);
