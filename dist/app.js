@@ -57,16 +57,7 @@ const strategy = new passport_jwt_1.Strategy(opts, (payload, done) => __awaiter(
         return done(new error_1.ApiError(505), false);
     }
 }));
-app.use((0, cors_1.default)((req, cb) => {
-    const origin = req.headers["origin"];
-    const frontendUrls = process.env.FRONTEND_URLS.split(",");
-    if (!origin)
-        cb(null, { origin: false, credentials: false });
-    else if (frontendUrls.includes(origin))
-        cb(null, { origin: origin, credentials: true });
-    else
-        cb(null, { origin: false, credentials: false });
-}));
+app.use((0, cors_1.default)({ origin: process.env.FRONTEND_URLS.split(","), credentials: true }));
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
