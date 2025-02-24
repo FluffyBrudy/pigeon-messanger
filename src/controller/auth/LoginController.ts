@@ -45,7 +45,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       httpOnly: true,
       secure: true,
       signed: true,
-      sameSite: "strict",
+      sameSite: "lax",
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
