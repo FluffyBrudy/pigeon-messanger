@@ -45,6 +45,7 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             secure: true,
             signed: true,
             sameSite: "none",
+            partitioned: true,
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
         res.status(200).json({

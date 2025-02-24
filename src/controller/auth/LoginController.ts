@@ -46,6 +46,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
       secure: true,
       signed: true,
       sameSite: "none",
+      partitioned: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
 
