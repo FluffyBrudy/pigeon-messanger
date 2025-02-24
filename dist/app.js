@@ -63,9 +63,9 @@ app.use((0, cors_1.default)((req, cb) => {
     if (!origin)
         cb(null, { origin: false, credentials: false });
     else if (frontendUrls.includes(origin))
-        cb(null, { origin: true, credentials: true });
+        cb(null, { origin: origin, credentials: true });
     else
-        cb(null, { origin: true, credentials: false });
+        cb(null, { origin: false, credentials: false });
 }));
 app.use((0, cookie_parser_1.default)(process.env.COOKIE_SECRET));
 app.use(express_1.default.json());

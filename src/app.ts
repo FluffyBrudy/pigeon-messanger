@@ -58,8 +58,8 @@ app.use(
     const frontendUrls = process.env.FRONTEND_URLS!.split(",");
     if (!origin) cb(null, { origin: false, credentials: false });
     else if (frontendUrls.includes(origin))
-      cb(null, { origin: true, credentials: true });
-    else cb(null, { origin: true, credentials: false });
+      cb(null, { origin: origin, credentials: true });
+    else cb(null, { origin: false, credentials: false });
   })
 );
 
