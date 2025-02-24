@@ -52,16 +52,7 @@ const strategy = new JWTStrategy(opts, async (payload: ExpressUser, done) => {
   }
 });
 
-app.use(
-  cors((req, cb) => {
-    const origin = req.headers["origin"];
-    const frontendUrls = process.env.FRONTEND_URLS!.split(",");
-    if (!origin) cb(null, { origin: false, credentials: false });
-    else if (frontendUrls.includes(origin))
-      cb(null, { origin: origin, credentials: true });
-    else cb(null, { origin: false, credentials: false });
-  })
-);
+app.use(cors({origin: process.env.FRONTEND_URLS!.split(","), credentials: true}))
 
 app.use(cookieParser(process.env.COOKIE_SECRET!));
 app.use(express.json());
