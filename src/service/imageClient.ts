@@ -1,4 +1,8 @@
-import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
+import {
+  v2 as cloudinary,
+  UploadApiErrorResponse,
+  UploadApiResponse,
+} from "cloudinary";
 import { Readable } from "stream";
 import { createHash } from "crypto";
 
@@ -6,8 +10,8 @@ class ImageUploaderClient {
   constructor() {
     cloudinary.config({
       cloud_name: process.env.CLOUD_NAME,
-      api_key: process.env.API_KEY,
-      api_secret: process.env.API_SECRET,
+      api_key: process.env.CLOUD_API_KEY,
+      api_secret: process.env.CLOUD_API_SECRET,
     });
   }
 
@@ -33,7 +37,7 @@ class ImageUploaderClient {
       const response = await this.promiseImageUpload(imageBuffer, publicId);
       return response as UploadApiResponse;
     } catch (err) {
-      console.log(err);
+      console.error((err as UploadApiErrorResponse).message);
       return null;
     }
   }
@@ -43,9 +47,21 @@ class ImageUploaderClient {
       const response = await cloudinary.uploader.upload(imageUrl);
       return response;
     } catch (err) {
-      console.log(err);
+      console.error((err as UploadApiErrorResponse).message);
       return null;
     }
+  }
+
+  public createSignature() {
+    const timestamp = Math.round(Date.now() / 1000) + 3600;
+    const signature = cloudinary.utils.api_sign_request(
+      {
+        timestamp: timestamp,
+        folder: "pigeon-messanger",
+      },
+      process.env.CLOUD_API_SECRET!
+    );
+    return { signature, timestamp };
   }
 }
 

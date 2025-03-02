@@ -25,6 +25,12 @@ export enum CHAT {
   MESSAGE_SINGLE = "/message/fetch/latest",
 }
 
+export enum PREFERENCE {
+  ROOT = "/preference",
+  PREF_PROFILE_SIGNATURE = "/profile/signature",
+  PREF_PROFILE_IMAGE = "/profile/image",
+}
+
 export enum SILENT {
   ROOT = "/silent",
   LOGIN = "/login",
