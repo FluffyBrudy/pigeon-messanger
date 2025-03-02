@@ -71,7 +71,7 @@ describe("FriendRequest test", () => {
       .set("Authorization", `Bearer ${accessToken1}`)
       .type("json")
       .send({ [FRIEND_ID]: id2 });
-    console.log(accessToken1);
+
     expect(respones.status).toBe(200);
     expect(respones.body.data).toBeTruthy();
   });
