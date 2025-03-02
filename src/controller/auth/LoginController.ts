@@ -35,10 +35,10 @@ export const LoginController: RequestHandler = async (req, res, next) => {
 
     const payload = { id: user.id, [USERNAME]: user.username };
     const accessToken = JWTSign(payload, process.env.JWT_SECRET!, {
-      expiresIn: process.env.ACCESS_TOKEN_LIFE!,
+      expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE!),
     });
     const refreshToken = JWTSign(payload, process.env.JWT_REFRESH_SECRET!, {
-      expiresIn: process.env.REFRESH_TOKEN_LIFE!,
+      expiresIn: parseInt(process.env.REFRESH_TOKEN_LIFE!),
     });
 
     res.cookie(REFRESH_TOKEN, refreshToken, {
