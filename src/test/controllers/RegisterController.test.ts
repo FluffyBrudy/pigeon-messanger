@@ -22,7 +22,6 @@ describe("Register registerRoute", () => {
       email: "apple@gmail.com",
       password: "Applefruit#12",
     });
-
     expect(res.status).toBe(200);
     expect(res.body.data).toBe(USER_SUCCESSFULLY_CREATED);
   });
