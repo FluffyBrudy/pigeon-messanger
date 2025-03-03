@@ -36,7 +36,7 @@ describe("Must check validity of signature", () => {
     expect(res.status).toBe(200);
 
     const { signature, timestamp } = (
-      res.body as { data: { signature: string; timestamp: string } }
+      res.body as { data: { signature: string; timestamp: number } }
     ).data;
     console.log(signature, timestamp);
 
@@ -45,10 +45,10 @@ describe("Must check validity of signature", () => {
     const formData = new FormData();
     formData.append("file", fs.createReadStream(filePath));
     formData.append("api_key", process.env.CLOUD_API_KEY!);
-    formData.append("signature", "4be9217e81947d59870acf5cdf1429b6fbe89357");
-    formData.append("timestamp", "1740916665");
+    formData.append("signature", signature);
+    formData.append("timestamp", timestamp);
     formData.append("folder", "pigeon-messanger");
-
+    console.log(signature, timestamp);
     const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${process.env.CLOUD_NAME}/image/upload`;
     console.log(cloudinaryUrl);
     const resImg = await axios.post(cloudinaryUrl, formData, {
