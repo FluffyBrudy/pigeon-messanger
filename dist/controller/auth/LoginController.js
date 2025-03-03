@@ -35,10 +35,10 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             return next(new error_1.ApiError(401, constants_2.INVALID_CREDENTIALS, true));
         const payload = { id: user.id, [constants_1.USERNAME]: user.username };
         const accessToken = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_SECRET, {
-            expiresIn: process.env.ACCESS_TOKEN_LIFE,
+            expiresIn: parseInt(process.env.ACCESS_TOKEN_LIFE),
         });
         const refreshToken = (0, jsonwebtoken_1.sign)(payload, process.env.JWT_REFRESH_SECRET, {
-            expiresIn: process.env.REFRESH_TOKEN_LIFE,
+            expiresIn: parseInt(process.env.REFRESH_TOKEN_LIFE),
         });
         res.cookie(constants_2.REFRESH_TOKEN, refreshToken, {
             httpOnly: true,

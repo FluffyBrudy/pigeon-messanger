@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SILENT = exports.CHAT = exports.SOCIAL = exports.AUTH = exports.API = void 0;
+exports.SILENT = exports.PREFERENCE = exports.CHAT = exports.SOCIAL = exports.AUTH = exports.API = void 0;
 var API;
 (function (API) {
     API["ROOT"] = "/api";
@@ -28,6 +28,12 @@ var CHAT;
     CHAT["MESSAGE_FETCH"] = "/message/fetch";
     CHAT["MESSAGE_SINGLE"] = "/message/fetch/latest";
 })(CHAT || (exports.CHAT = CHAT = {}));
+var PREFERENCE;
+(function (PREFERENCE) {
+    PREFERENCE["ROOT"] = "/preference";
+    PREFERENCE["PREF_PROFILE_SIGNATURE"] = "/profile/signature";
+    PREFERENCE["PREF_PROFILE_IMAGE"] = "/profile/image";
+})(PREFERENCE || (exports.PREFERENCE = PREFERENCE = {}));
 var SILENT;
 (function (SILENT) {
     SILENT["ROOT"] = "/silent";

@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.preferanceRouter = void 0;
+const express_1 = require("express");
+const constants_1 = require("./constants");
+const setProfileController_1 = require("../controller/preference/setProfileController");
+const preference_1 = require("../validator/preference/preference");
+const preferanceRouter = (0, express_1.Router)();
+exports.preferanceRouter = preferanceRouter;
+preferanceRouter.get(constants_1.PREFERENCE.PREF_PROFILE_SIGNATURE, setProfileController_1.GetProfileSignatureController);
+preferanceRouter.post(constants_1.PREFERENCE.PREF_PROFILE_IMAGE, preference_1.initProfileValidation, setProfileController_1.SetInitProfileController);
