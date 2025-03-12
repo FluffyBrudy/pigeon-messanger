@@ -25,7 +25,12 @@ export const LoginController: RequestHandler = async (req, res, next) => {
   try {
     const user = await dbClient.user.findUnique({
       where: { email },
-      select: { id: true, password: true, username: true },
+      select: {
+        id: true,
+        password: true,
+        username: true,
+        profile: { select: { initialized: true } },
+      },
     });
     if (!user) return next(new ApiError(401, INVALID_CREDENTIALS, true));
 
@@ -55,6 +60,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
         [ACCESS_TOKEN]: accessToken,
         id: user.id,
         [USERNAME]: user.username,
+        initialized: user.profile?.initialized,
       },
     });
   } catch (error) {
