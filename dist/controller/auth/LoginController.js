@@ -18,6 +18,7 @@ const constants_1 = require("../../validator/auth/constants");
 const dbClient_1 = require("../../service/dbClient");
 const constants_2 = require("./constants");
 const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     const validatedRes = (0, express_validator_1.validationResult)(req);
     if (!validatedRes.isEmpty()) {
         return next(new error_1.BodyValidationError(validatedRes.array()));
@@ -26,7 +27,12 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     try {
         const user = yield dbClient_1.dbClient.user.findUnique({
             where: { email },
-            select: { id: true, password: true, username: true },
+            select: {
+                id: true,
+                password: true,
+                username: true,
+                profile: { select: { initialized: true } },
+            },
         });
         if (!user)
             return next(new error_1.ApiError(401, constants_2.INVALID_CREDENTIALS, true));
@@ -53,6 +59,7 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                 [constants_2.ACCESS_TOKEN]: accessToken,
                 id: user.id,
                 [constants_1.USERNAME]: user.username,
+                initialized: (_a = user.profile) === null || _a === void 0 ? void 0 : _a.initialized,
             },
         });
     }
