@@ -7,5 +7,5 @@ export const initProfileValidation = body(IMAGE_URL)
   .withMessage(formatFieldDoesntExist(IMAGE_URL))
   .isURL({ require_protocol: true, require_valid_protocol: true })
   .withMessage(INVALID_IMAGE_URL)
-  .custom((imageUrl: string) => imageUrl.match(/\.(png|jpg|jpeg|webp)$/i))
+  .custom((imageUrl: string) => imageUrl.match(/\.(png|jpg|jpeg|webp|svg)$/i))
   .withMessage(NON_IMAGE_URL);

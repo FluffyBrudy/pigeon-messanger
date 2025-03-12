@@ -9,5 +9,5 @@ exports.initProfileValidation = (0, express_validator_1.body)(constants_1.IMAGE_
     .withMessage((0, validatorHelper_1.formatFieldDoesntExist)(constants_1.IMAGE_URL))
     .isURL({ require_protocol: true, require_valid_protocol: true })
     .withMessage(constants_1.INVALID_IMAGE_URL)
-    .custom((imageUrl) => imageUrl.match(/\.(png|jpg|jpeg|webp)$/i))
+    .custom((imageUrl) => imageUrl.match(/\.(png|jpg|jpeg|webp|svg)$/i))
     .withMessage(constants_1.NON_IMAGE_URL);
