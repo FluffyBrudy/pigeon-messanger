@@ -26,7 +26,7 @@ export const SetInitProfileController: RequestHandler = async (
   try {
     await dbClient.profile.update({
       where: { userId: userId },
-      data: { picture: imageUrl },
+      data: { picture: imageUrl, initialized: true },
     });
     res.json({ data: { imageUrl } });
   } catch (error) {
