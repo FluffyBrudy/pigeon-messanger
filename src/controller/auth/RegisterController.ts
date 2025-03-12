@@ -16,12 +16,20 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
     return next(new BodyValidationError(validatedRes.array()));
   }
 
-  const { username, email, password } = req.body as RegisterBody;
+  const { username, email, password, imageUrl } = req.body as RegisterBody;
+  const picture = imageUrl
+    ? { profile: { create: { picture: imageUrl } } }
+    : {};
   const hashedPassword = hashSync(password, genSaltSync());
   try {
     await dbClient.$transaction(async () => {
       const user = await dbClient.user.create({
-        data: { username, email, password: hashedPassword },
+        data: {
+          username,
+          email,
+          password: hashedPassword,
+          ...picture,
+        },
         select: { id: true },
       });
       await dbClient.profile.create({

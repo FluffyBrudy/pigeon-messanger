@@ -1,9 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.passwordBody = exports.passwordExists = exports.emailBody = exports.usernameBody = void 0;
+exports.validImageUrl = exports.passwordBody = exports.passwordExists = exports.emailBody = exports.usernameBody = void 0;
 const express_validator_1 = require("express-validator");
 const constants_1 = require("./constants");
 const validatorHelper_1 = require("../validatorHelper");
+const constants_2 = require("../preference/constants");
 exports.usernameBody = (0, express_validator_1.body)(constants_1.USERNAME)
     .exists()
     .withMessage((0, validatorHelper_1.formatFieldDoesntExist)(constants_1.USERNAME))
@@ -25,3 +26,8 @@ exports.passwordBody = exports.passwordExists
     .withMessage((0, validatorHelper_1.formatLengthError)(constants_1.PASSWORD, constants_1.MIN_USERNAME_LENGTH, constants_1.MAX_USERNAME_LENGTH))
     .isStrongPassword()
     .withMessage(constants_1.WEAK_PASSWOR_ERROR);
+exports.validImageUrl = (0, express_validator_1.body)(constants_2.IMAGE_URL)
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage(constants_1.INVALID_IMAGE_URL);

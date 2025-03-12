@@ -9,8 +9,10 @@ import {
   MIN_PASSWORD_LENGTH,
   MIN_USERNAME_LENGTH,
   WEAK_PASSWOR_ERROR,
+  INVALID_IMAGE_URL,
 } from "./constants";
 import { formatFieldDoesntExist, formatLengthError } from "../validatorHelper";
+import { IMAGE_URL } from "../preference/constants";
 
 export const usernameBody = body(USERNAME)
   .exists()
@@ -40,3 +42,9 @@ export const passwordBody = passwordExists
   )
   .isStrongPassword()
   .withMessage(WEAK_PASSWOR_ERROR);
+
+export const validImageUrl = body(IMAGE_URL)
+  .optional()
+  .trim()
+  .isURL()
+  .withMessage(INVALID_IMAGE_URL);

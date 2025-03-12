@@ -20,12 +20,16 @@ const RegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0,
     if (!validatedRes.isEmpty()) {
         return next(new error_1.BodyValidationError(validatedRes.array()));
     }
-    const { username, email, password } = req.body;
+    const { username, email, password, imageUrl } = req.body;
+    const picture = imageUrl
+        ? { profile: { create: { picture: imageUrl } } }
+        : {};
     const hashedPassword = (0, bcryptjs_1.hashSync)(password, (0, bcryptjs_1.genSaltSync)());
     try {
         yield dbClient_1.dbClient.$transaction(() => __awaiter(void 0, void 0, void 0, function* () {
             const user = yield dbClient_1.dbClient.user.create({
-                data: { username, email, password: hashedPassword },
+                data: Object.assign({ username,
+                    email, password: hashedPassword }, picture),
                 select: { id: true },
             });
             yield dbClient_1.dbClient.profile.create({

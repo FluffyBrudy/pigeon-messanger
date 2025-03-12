@@ -5,6 +5,7 @@ export type RegisterBody = {
   [USERNAME]: string;
   [EMAIL]: string;
   [PASSWORD]: string;
+  imageUrl?: string;
 };
 
 export type TCursor = { cursor: { id: string } } | {};
