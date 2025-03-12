@@ -29,7 +29,7 @@ const SetInitProfileController = (req, res, next) => __awaiter(void 0, void 0, v
     try {
         yield dbClient_1.dbClient.profile.update({
             where: { userId: userId },
-            data: { picture: imageUrl },
+            data: { picture: imageUrl, initialized: true },
         });
         res.json({ data: { imageUrl } });
     }
