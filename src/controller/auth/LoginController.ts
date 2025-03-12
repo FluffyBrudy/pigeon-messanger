@@ -51,7 +51,11 @@ export const LoginController: RequestHandler = async (req, res, next) => {
     });
 
     res.status(200).json({
-      data: { [ACCESS_TOKEN]: accessToken, id: user.id },
+      data: {
+        [ACCESS_TOKEN]: accessToken,
+        id: user.id,
+        [USERNAME]: user.username,
+      },
     });
   } catch (error) {
     return next(new LoggerApiError(error, 500));

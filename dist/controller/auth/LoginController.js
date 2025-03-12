@@ -49,7 +49,11 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
             maxAge: 30 * 24 * 60 * 60 * 1000,
         });
         res.status(200).json({
-            data: { [constants_2.ACCESS_TOKEN]: accessToken, id: user.id },
+            data: {
+                [constants_2.ACCESS_TOKEN]: accessToken,
+                id: user.id,
+                [constants_1.USERNAME]: user.username,
+            },
         });
     }
     catch (error) {
