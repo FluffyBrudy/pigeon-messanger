@@ -29,7 +29,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
         id: true,
         password: true,
         username: true,
-        profile: { select: { initialized: true } },
+        profile: { select: { initialized: true, picture: true } },
       },
     });
     if (!user) return next(new ApiError(401, INVALID_CREDENTIALS, true));
@@ -61,6 +61,7 @@ export const LoginController: RequestHandler = async (req, res, next) => {
         id: user.id,
         [USERNAME]: user.username,
         initialized: user.profile?.initialized,
+        imageUrl: user.profile?.picture,
       },
     });
   } catch (error) {
