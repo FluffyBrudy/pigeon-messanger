@@ -33,10 +33,12 @@ silentRouter.post(constants_1.SILENT.LOGIN, (req, res, next) => __awaiter(void 0
         if (!user)
             return next(new error_1.ApiError(401, constants_2.INVALID_CREDENTIALS, true));
         res.json({
-            id: user.id,
-            username: user.username,
-            initialized: (_a = user.profile) === null || _a === void 0 ? void 0 : _a.initialized,
-            imageUrl: (_b = user.profile) === null || _b === void 0 ? void 0 : _b.picture,
+            data: {
+                id: user.id,
+                username: user.username,
+                initialized: (_a = user.profile) === null || _a === void 0 ? void 0 : _a.initialized,
+                imageUrl: (_b = user.profile) === null || _b === void 0 ? void 0 : _b.picture,
+            },
         });
     }
     catch (err) {

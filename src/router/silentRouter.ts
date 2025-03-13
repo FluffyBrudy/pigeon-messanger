@@ -21,10 +21,12 @@ silentRouter.post(SILENT.LOGIN, async (req, res, next) => {
     if (!user) return next(new ApiError(401, INVALID_CREDENTIALS, true));
 
     res.json({
-      id: user.id,
-      username: user.username,
-      initialized: user.profile?.initialized,
-      imageUrl: user.profile?.picture,
+      data: {
+        id: user.id,
+        username: user.username,
+        initialized: user.profile?.initialized,
+        imageUrl: user.profile?.picture,
+      },
     });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
