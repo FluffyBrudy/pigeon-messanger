@@ -18,7 +18,7 @@ const constants_1 = require("../../validator/auth/constants");
 const dbClient_1 = require("../../service/dbClient");
 const constants_2 = require("./constants");
 const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const validatedRes = (0, express_validator_1.validationResult)(req);
     if (!validatedRes.isEmpty()) {
         return next(new error_1.BodyValidationError(validatedRes.array()));
@@ -31,7 +31,7 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                 id: true,
                 password: true,
                 username: true,
-                profile: { select: { initialized: true } },
+                profile: { select: { initialized: true, picture: true } },
             },
         });
         if (!user)
@@ -60,6 +60,7 @@ const LoginController = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
                 id: user.id,
                 [constants_1.USERNAME]: user.username,
                 initialized: (_a = user.profile) === null || _a === void 0 ? void 0 : _a.initialized,
+                imageUrl: (_b = user.profile) === null || _b === void 0 ? void 0 : _b.picture,
             },
         });
     }
