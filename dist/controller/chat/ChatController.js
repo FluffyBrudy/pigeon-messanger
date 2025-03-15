@@ -37,12 +37,14 @@ const CreateChatMessageController = (req, res, next) => __awaiter(void 0, void 0
                 creatorId: true,
                 messageBody: true,
                 messageRecipient: { select: { recipientId: true } },
+                isFile: true,
             },
         });
         const flattenResponse = {
             creatorId: messageItem.creatorId,
             id: messageItem.id,
             message: messageItem.messageBody,
+            isFile: messageItem.isFile,
         };
         res.json({ data: flattenResponse });
     }
@@ -77,10 +79,12 @@ const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0,
                 id: true,
                 creatorId: true,
                 messageBody: true,
+                isFile: true,
             }, orderBy: { createdAt: "desc" }, take: constants_2.LIMIT, skip: cursorId ? 1 : 0 }));
         const idFilteredChats = chats.map((chat) => ({
             creatorId: chat.creatorId,
             messageBody: chat.messageBody,
+            isFIle: chat.isFile,
         }));
         res.json({
             data: { chats: idFilteredChats, limit: constants_2.LIMIT, cursor: (_a = chats.at(-1)) === null || _a === void 0 ? void 0 : _a.id },
@@ -115,6 +119,8 @@ const FetchSingleLatestMessage = (req, res, next) => __awaiter(void 0, void 0, v
       JOIN "MessageRecipient" mr 
         ON m.id = mr."messageId"
       WHERE 
+        m."isFile" = false
+        AND
         (m."creatorId" = ui.userId AND mr."recipientId" = ui.recipientId)
         OR 
         (m."creatorId" = ui.recipientId AND mr."recipientId" = ui.userId)
