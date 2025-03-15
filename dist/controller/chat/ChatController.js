@@ -84,7 +84,7 @@ const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0,
         const idFilteredChats = chats.map((chat) => ({
             creatorId: chat.creatorId,
             messageBody: chat.messageBody,
-            isFIle: chat.isFile,
+            isFile: chat.isFile,
         }));
         res.json({
             data: { chats: idFilteredChats, limit: constants_2.LIMIT, cursor: (_a = chats.at(-1)) === null || _a === void 0 ? void 0 : _a.id },

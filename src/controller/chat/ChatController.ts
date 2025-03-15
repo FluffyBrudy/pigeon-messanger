@@ -97,7 +97,7 @@ export const FetchChatMessageController: RequestHandler = async (
     const idFilteredChats = chats.map((chat) => ({
       creatorId: chat.creatorId,
       messageBody: chat.messageBody,
-      isFIle: chat.isFile,
+      isFile: chat.isFile,
     }));
     res.json({
       data: { chats: idFilteredChats, limit: LIMIT, cursor: chats.at(-1)?.id },
