@@ -39,12 +39,14 @@ export const CreateChatMessageController: RequestHandler = async (
         creatorId: true,
         messageBody: true,
         messageRecipient: { select: { recipientId: true } },
+        isFile: true,
       },
     });
     const flattenResponse = {
       creatorId: messageItem.creatorId,
       id: messageItem.id,
       message: messageItem.messageBody,
+      isFile: messageItem.isFile,
     };
     res.json({ data: flattenResponse });
   } catch (err) {
@@ -95,6 +97,7 @@ export const FetchChatMessageController: RequestHandler = async (
     const idFilteredChats = chats.map((chat) => ({
       creatorId: chat.creatorId,
       messageBody: chat.messageBody,
+      isFIle: chat.isFile,
     }));
     res.json({
       data: { chats: idFilteredChats, limit: LIMIT, cursor: chats.at(-1)?.id },
@@ -133,6 +136,8 @@ export const FetchSingleLatestMessage: RequestHandler = async (
       JOIN "MessageRecipient" mr 
         ON m.id = mr."messageId"
       WHERE 
+        m."isFile" = false
+        AND
         (m."creatorId" = ui.userId AND mr."recipientId" = ui.recipientId)
         OR 
         (m."creatorId" = ui.recipientId AND mr."recipientId" = ui.userId)
