@@ -86,6 +86,7 @@ export const FetchChatMessageController: RequestHandler = async (
         id: true,
         creatorId: true,
         messageBody: true,
+        isFile: true,
       },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
