@@ -33,6 +33,7 @@ export const CreateChatMessageController: RequestHandler = async (
         messageRecipient: {
           create: { recipientId, isRead: false }, //id auto-connected
         },
+        isFile: !!req.body.isFile,
       },
       select: {
         id: true,

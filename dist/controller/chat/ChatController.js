@@ -31,6 +31,7 @@ const CreateChatMessageController = (req, res, next) => __awaiter(void 0, void 0
                 messageRecipient: {
                     create: { recipientId, isRead: false }, //id auto-connected
                 },
+                isFile: !!req.body.isFile,
             },
             select: {
                 id: true,
