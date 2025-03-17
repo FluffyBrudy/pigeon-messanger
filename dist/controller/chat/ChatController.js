@@ -81,12 +81,20 @@ const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0,
                 creatorId: true,
                 messageBody: true,
                 isFile: true,
+                creator: {
+                    select: { username: true, profile: { select: { picture: true } } },
+                },
             }, orderBy: { createdAt: "desc" }, take: constants_2.LIMIT, skip: cursorId ? 1 : 0 }));
-        const idFilteredChats = chats.map((chat) => ({
-            creatorId: chat.creatorId,
-            messageBody: chat.messageBody,
-            isFile: chat.isFile,
-        }));
+        const idFilteredChats = chats.map((chat) => {
+            var _a;
+            return ({
+                creatorId: chat.creatorId,
+                messageBody: chat.messageBody,
+                isFile: chat.isFile,
+                username: chat.creator.username,
+                imageUrl: (_a = chat.creator.profile) === null || _a === void 0 ? void 0 : _a.picture,
+            });
+        });
         res.json({
             data: { chats: idFilteredChats, limit: constants_2.LIMIT, cursor: (_a = chats.at(-1)) === null || _a === void 0 ? void 0 : _a.id },
         });

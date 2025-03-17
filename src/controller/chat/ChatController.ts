@@ -90,6 +90,9 @@ export const FetchChatMessageController: RequestHandler = async (
         creatorId: true,
         messageBody: true,
         isFile: true,
+        creator: {
+          select: { username: true, profile: { select: { picture: true } } },
+        },
       },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
@@ -99,6 +102,8 @@ export const FetchChatMessageController: RequestHandler = async (
       creatorId: chat.creatorId,
       messageBody: chat.messageBody,
       isFile: chat.isFile,
+      username: chat.creator.username,
+      imageUrl: chat.creator.profile?.picture,
     }));
     res.json({
       data: { chats: idFilteredChats, limit: LIMIT, cursor: chats.at(-1)?.id },
