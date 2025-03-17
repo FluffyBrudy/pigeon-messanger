@@ -55,7 +55,7 @@ const CreateChatMessageController = (req, res, next) => __awaiter(void 0, void 0
 });
 exports.CreateChatMessageController = CreateChatMessageController;
 const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b;
     const validatedRes = (0, express_validator_1.validationResult)(req);
     if (!validatedRes.isEmpty()) {
         return next(new error_1.BodyValidationError(validatedRes.array()));
@@ -65,6 +65,12 @@ const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0,
     const cursorId = req.body[constants_1.CURSOR];
     const cursor = cursorId ? { cursor: { id: cursorId } } : {};
     try {
+        const user = yield dbClient_1.dbClient.user.findUnique({
+            where: { id: recipientId },
+            select: { username: true, profile: { select: { picture: true } } },
+        });
+        if (!user)
+            return next(new error_1.ApiError(400, "User not found"));
         const chats = yield dbClient_1.dbClient.message.findMany(Object.assign(Object.assign({}, cursor), { where: {
                 OR: [
                     {
@@ -81,22 +87,20 @@ const FetchChatMessageController = (req, res, next) => __awaiter(void 0, void 0,
                 creatorId: true,
                 messageBody: true,
                 isFile: true,
-                creator: {
-                    select: { username: true, profile: { select: { picture: true } } },
-                },
             }, orderBy: { createdAt: "desc" }, take: constants_2.LIMIT, skip: cursorId ? 1 : 0 }));
-        const idFilteredChats = chats.map((chat) => {
-            var _a;
-            return ({
-                creatorId: chat.creatorId,
-                messageBody: chat.messageBody,
-                isFile: chat.isFile,
-                username: chat.creator.username,
-                imageUrl: (_a = chat.creator.profile) === null || _a === void 0 ? void 0 : _a.picture,
-            });
-        });
+        const idFilteredChats = chats.map((chat) => ({
+            creatorId: chat.creatorId,
+            messageBody: chat.messageBody,
+            isFile: chat.isFile,
+        }));
         res.json({
-            data: { chats: idFilteredChats, limit: constants_2.LIMIT, cursor: (_a = chats.at(-1)) === null || _a === void 0 ? void 0 : _a.id },
+            data: {
+                chats: idFilteredChats,
+                limit: constants_2.LIMIT,
+                cursor: (_a = chats.at(-1)) === null || _a === void 0 ? void 0 : _a.id,
+                username: user.username,
+                imageUrl: (_b = user.profile) === null || _b === void 0 ? void 0 : _b.picture,
+            },
         });
     }
     catch (err) {

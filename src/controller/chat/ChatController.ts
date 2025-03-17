@@ -1,6 +1,10 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import { BodyValidationError, LoggerApiError } from "../../error/error";
+import {
+  ApiError,
+  BodyValidationError,
+  LoggerApiError,
+} from "../../error/error";
 import { ExpressUser, TCursor } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 import { CURSOR } from "../../validator/social/constants";
@@ -71,6 +75,11 @@ export const FetchChatMessageController: RequestHandler = async (
   const cursor: TCursor = cursorId ? { cursor: { id: cursorId } } : {};
 
   try {
+    const user = await dbClient.user.findUnique({
+      where: { id: recipientId },
+      select: { username: true, profile: { select: { picture: true } } },
+    });
+    if (!user) return next(new ApiError(400, "User not found"));
     const chats = await dbClient.message.findMany({
       ...cursor,
       where: {
@@ -90,23 +99,25 @@ export const FetchChatMessageController: RequestHandler = async (
         creatorId: true,
         messageBody: true,
         isFile: true,
-        creator: {
-          select: { username: true, profile: { select: { picture: true } } },
-        },
       },
       orderBy: { createdAt: "desc" },
       take: LIMIT,
       skip: cursorId ? 1 : 0,
     });
+
     const idFilteredChats = chats.map((chat) => ({
       creatorId: chat.creatorId,
       messageBody: chat.messageBody,
       isFile: chat.isFile,
-      username: chat.creator.username,
-      imageUrl: chat.creator.profile?.picture,
     }));
     res.json({
-      data: { chats: idFilteredChats, limit: LIMIT, cursor: chats.at(-1)?.id },
+      data: {
+        chats: idFilteredChats,
+        limit: LIMIT,
+        cursor: chats.at(-1)?.id,
+        username: user.username,
+        imageUrl: user.profile?.picture,
+      },
     });
   } catch (err) {
     return next(new LoggerApiError(err, 500));
