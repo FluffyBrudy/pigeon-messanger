@@ -58,6 +58,7 @@ class ImageUploaderClient {
       {
         timestamp: timestamp,
         folder: "pigeon-messanger",
+        resource_type: "auto",
       },
       process.env.CLOUD_API_SECRET!
     );
