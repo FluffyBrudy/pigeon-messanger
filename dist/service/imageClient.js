@@ -64,7 +64,6 @@ class ImageUploaderClient {
         const signature = cloudinary_1.v2.utils.api_sign_request({
             timestamp: timestamp,
             folder: "pigeon-messanger",
-            resource_type: "auto",
         }, process.env.CLOUD_API_SECRET);
         return { signature, timestamp };
     }
