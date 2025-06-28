@@ -20,6 +20,7 @@ var SOCIAL;
     SOCIAL["ACCEPTED_REQUESTS"] = "/friends/requests/accepted";
     SOCIAL["ACCEPT_REQUEST"] = "/friends/requests/accept";
     SOCIAL["REJECT_REQUEST"] = "/friends/requests/reject";
+    SOCIAL["FRIEND_SUGGESTION"] = "/friends/suggestion/";
 })(SOCIAL || (exports.SOCIAL = SOCIAL = {}));
 var CHAT;
 (function (CHAT) {

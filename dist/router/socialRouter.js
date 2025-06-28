@@ -10,6 +10,7 @@ const FindFriendsController_1 = require("../controller/social/FindFriendsControl
 const social_1 = require("../validator/social/social");
 const FriendRequestController_1 = require("../controller/social/FriendRequestController");
 const constants_1 = require("./constants");
+const ConnectedFriendController_1 = require("../controller/social/ConnectedFriendController");
 const limiter = (0, express_rate_limit_1.default)({
     windowMs: 10 * 60 * 1000,
     limit: 50,
@@ -22,3 +23,4 @@ socialRouter.get(constants_1.SOCIAL.PENDING_REQUESTS, FriendRequestController_1.
 socialRouter.get(constants_1.SOCIAL.ACCEPTED_REQUESTS, FriendRequestController_1.GetAcceptedFriendRequestsController);
 socialRouter.post(constants_1.SOCIAL.ACCEPT_REQUEST, social_1.accetpFriendValidation, FriendRequestController_1.AcceptFriendRequestController);
 socialRouter.post(constants_1.SOCIAL.REJECT_REQUEST, social_1.deleteOrCancelPendingRequestValidation, FriendRequestController_1.RejectOrCancelFriendRequestController);
+socialRouter.get(constants_1.SOCIAL.FRIEND_SUGGESTION, ConnectedFriendController_1.SuggestNewFriendsController);

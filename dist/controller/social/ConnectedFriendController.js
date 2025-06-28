@@ -9,14 +9,39 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const express_validator_1 = require("express-validator");
+exports.SuggestNewFriendsController = void 0;
+const dbClient_1 = require("../../service/dbClient");
 const error_1 = require("../../error/error");
-const constants_1 = require("../../validator/social/constants");
-const UnfriendConnectedFriendController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const validatedRes = (0, express_validator_1.validationResult)(req);
-    if (!validatedRes.isEmpty()) {
-        return next(new error_1.BodyValidationError(validatedRes.array()));
+const SuggestNewFriendsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    try {
+        const friendsOfFriend = yield dbClient_1.dbClient.$queryRaw `
+      SELECT DISTINCT f2."friendId" AS friend_of_friend
+      FROM "BidirectionFriendship" f1
+      JOIN "BidirectionFriendship" f2
+        ON f1."friendId" = f2."userId"
+      WHERE f1."userId" = ${user.id}::uuid
+        AND f2."friendId" != ${user.id}::uuid
+        AND f2."friendId" not in (
+          select "friendId" from "BidirectionFriendship"
+            where "userId"=${user.id}::uuid
+        )
+      AND f2."friendId" NOT IN (
+        SELECT "friendId" 
+        FROM "FriendshipRequest"
+        WHERE "userId" = ${user.id}::uuid
+
+        UNION
+        
+        SELECT "userId" 
+        FROM "FriendshipRequest"
+        WHERE "friendId" = ${user.id}::uuid
+      )
+    `;
+        res.status(200).json({ data: friendsOfFriend });
     }
-    const friendId = req.body[constants_1.FRIEND_ID];
-    const userId = req.user.id;
+    catch (error) {
+        return next(new error_1.LoggerApiError(error, 500));
+    }
 });
+exports.SuggestNewFriendsController = SuggestNewFriendsController;
