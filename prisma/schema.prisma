@@ -1,6 +1,6 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["multiSchema"]
+  previewFeatures = ["multiSchema", "views"]
 }
 
 datasource db {
@@ -43,11 +43,11 @@ model Group {
 model Message {
   id               String             @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   messageBody      String
-  isFile           Boolean            @default(false)
-  createdAt        DateTime?          @default(now()) @db.Timestamptz()
+  createdAt        DateTime?          @default(now()) @db.Timestamptz(6)
   parentMessageId  String?            @db.Uuid
   expiryDate       DateTime?          @db.Date
   creatorId        String             @db.Uuid
+  isFile           Boolean            @default(false)
   GroupMessage     GroupMessage[]
   creator          User               @relation(fields: [creatorId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   messageRecipient MessageRecipient[]
@@ -85,9 +85,9 @@ model MessageRecipient {
 model Profile {
   id          String  @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   userId      String  @unique @db.Uuid
-  picture     String  @default("https://res.cloudinary.com/dlygf7xye/image/upload/v1736098504/00721c9db2261d4ab0f9528ba9f3c7f2e70f5330.png") @db.Text
-  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  picture     String  @default("https://res.cloudinary.com/dlygf7xye/image/upload/v1736098504/00721c9db2261d4ab0f9528ba9f3c7f2e70f5330.png")
   initialized Boolean @default(false)
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@schema("public")
 }
