@@ -27,6 +27,17 @@ export const SuggestNewFriendsController: RequestHandler = async (
           select "friendId" from "BidirectionFriendship"
             where "userId"=${user.id}::uuid
         )
+      AND f2."friendId" NOT IN (
+        SELECT "friendId" 
+        FROM "FriendshipRequest"
+        WHERE "userId" = ${user.id}::uuid
+
+        UNION
+        
+        SELECT "userId" 
+        FROM "FriendshipRequest"
+        WHERE "friendId" = ${user.id}::uuid
+      )
     `;
     res.status(200).json({ data: friendsOfFriend });
   } catch (error) {
