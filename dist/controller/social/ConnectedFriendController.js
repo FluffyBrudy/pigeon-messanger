@@ -16,7 +16,7 @@ const LIMIT = 20;
 const SuggestFriendsOfFriends = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const skip = parseInt(req.query.skip || "0");
-    const offset = skip === 0 ? 0 : skip + 1;
+    const offset = skip === 0 ? LIMIT : skip * LIMIT + 1;
     try {
         const friendsOfFriend = yield dbClient_1.dbClient.$queryRaw `
       WITH "friendsOfFriend" as (

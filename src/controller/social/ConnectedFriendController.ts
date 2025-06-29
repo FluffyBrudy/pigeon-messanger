@@ -17,7 +17,7 @@ export const SuggestFriendsOfFriends: RequestHandler = async (
 ) => {
   const user = req.user as ExpressUser;
   const skip = parseInt((req.query.skip as string | undefined) || "0");
-  const offset = skip === 0 ? 0 : skip + 1;
+  const offset = skip === 0 ? LIMIT : skip * LIMIT + 1;
 
   try {
     const friendsOfFriend = await dbClient.$queryRaw<FriendOfFriendResponse[]>`
