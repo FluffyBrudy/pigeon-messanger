@@ -9,15 +9,18 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SuggestNewFriendsController = void 0;
+exports.SuggestFriendsOfFriends = void 0;
 const dbClient_1 = require("../../service/dbClient");
 const error_1 = require("../../error/error");
-const SuggestNewFriendsController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const LIMIT = 20;
+const SuggestFriendsOfFriends = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
+    const skip = parseInt(req.query.skip || "0");
+    const offset = skip === 0 ? 0 : skip + 1;
     try {
         const friendsOfFriend = yield dbClient_1.dbClient.$queryRaw `
       WITH "friendsOfFriend" as (
-        SELECT DISTINCT f2."friendId" AS "friendOfFriend"
+        SELECT DISTINCT f2."friendId" AS "suggestedUser"
         FROM "BidirectionFriendship" f1
         JOIN "BidirectionFriendship" f2
           ON f1."friendId" = f2."userId"
@@ -40,7 +43,10 @@ const SuggestNewFriendsController = (req, res, next) => __awaiter(void 0, void 0
       SELECT "friendsOfFriend".*, "Profile"."username", "Profile"."picture"
       FROM "friendsOfFriend"
       INNER JOIN "Profile"
-        ON "Profile"."userId" = "friendsOfFriend"."friendOfFriend";
+        ON "Profile"."userId" = "friendsOfFriend"."suggestedUser"
+      ORDER BY "Profile"."username" ASC
+      LIMIT ${LIMIT}::int
+      OFFSET ${offset}::int
     `;
         res.status(200).json({ data: friendsOfFriend });
     }
@@ -48,4 +54,4 @@ const SuggestNewFriendsController = (req, res, next) => __awaiter(void 0, void 0
         return next(new error_1.LoggerApiError(error, 500));
     }
 });
-exports.SuggestNewFriendsController = SuggestNewFriendsController;
+exports.SuggestFriendsOfFriends = SuggestFriendsOfFriends;

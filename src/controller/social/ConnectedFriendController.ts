@@ -4,21 +4,25 @@ import { dbClient } from "../../service/dbClient";
 import { LoggerApiError } from "../../error/error";
 
 type FriendOfFriendResponse = {
-  friendId: string;
+  suggestedUser: string;
   username: string;
   picture: string;
 };
 
-export const SuggestNewFriendsController: RequestHandler = async (
+const LIMIT = 20;
+export const SuggestFriendsOfFriends: RequestHandler = async (
   req,
   res,
   next
 ) => {
   const user = req.user as ExpressUser;
+  const skip = parseInt((req.query.skip as string | undefined) || "0");
+  const offset = skip === 0 ? 0 : skip + 1;
+
   try {
     const friendsOfFriend = await dbClient.$queryRaw<FriendOfFriendResponse[]>`
       WITH "friendsOfFriend" as (
-        SELECT DISTINCT f2."friendId" AS "friendOfFriend"
+        SELECT DISTINCT f2."friendId" AS "suggestedUser"
         FROM "BidirectionFriendship" f1
         JOIN "BidirectionFriendship" f2
           ON f1."friendId" = f2."userId"
@@ -41,7 +45,10 @@ export const SuggestNewFriendsController: RequestHandler = async (
       SELECT "friendsOfFriend".*, "Profile"."username", "Profile"."picture"
       FROM "friendsOfFriend"
       INNER JOIN "Profile"
-        ON "Profile"."userId" = "friendsOfFriend"."friendOfFriend";
+        ON "Profile"."userId" = "friendsOfFriend"."suggestedUser"
+      ORDER BY "Profile"."username" ASC
+      LIMIT ${LIMIT}::int
+      OFFSET ${offset}::int
     `;
     res.status(200).json({ data: friendsOfFriend });
   } catch (error) {

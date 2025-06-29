@@ -16,7 +16,7 @@ import {
   RejectOrCancelFriendRequestController,
 } from "../controller/social/FriendRequestController";
 import { SOCIAL } from "./constants";
-import { SuggestNewFriendsController } from "../controller/social/ConnectedFriendController";
+import { SuggestFriendsOfFriends } from "../controller/social/ConnectedFriendController";
 
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000,
@@ -55,6 +55,6 @@ socialRouter.post(
   RejectOrCancelFriendRequestController
 );
 
-socialRouter.get(SOCIAL.FRIEND_SUGGESTION, SuggestNewFriendsController);
+socialRouter.get(SOCIAL.FRIEND_SUGGESTION, SuggestFriendsOfFriends);
 
 export { socialRouter };

@@ -23,4 +23,4 @@ socialRouter.get(constants_1.SOCIAL.PENDING_REQUESTS, FriendRequestController_1.
 socialRouter.get(constants_1.SOCIAL.ACCEPTED_REQUESTS, FriendRequestController_1.GetAcceptedFriendRequestsController);
 socialRouter.post(constants_1.SOCIAL.ACCEPT_REQUEST, social_1.accetpFriendValidation, FriendRequestController_1.AcceptFriendRequestController);
 socialRouter.post(constants_1.SOCIAL.REJECT_REQUEST, social_1.deleteOrCancelPendingRequestValidation, FriendRequestController_1.RejectOrCancelFriendRequestController);
-socialRouter.get(constants_1.SOCIAL.FRIEND_SUGGESTION, ConnectedFriendController_1.SuggestNewFriendsController);
+socialRouter.get(constants_1.SOCIAL.FRIEND_SUGGESTION, ConnectedFriendController_1.SuggestFriendsOfFriends);
