@@ -17,27 +17,31 @@ export const SuggestNewFriendsController: RequestHandler = async (
   const user = req.user as ExpressUser;
   try {
     const friendsOfFriend = await dbClient.$queryRaw<FriendOfFriendResponse[]>`
-      SELECT DISTINCT f2."friendId" AS friend_of_friend
-      FROM "BidirectionFriendship" f1
-      JOIN "BidirectionFriendship" f2
-        ON f1."friendId" = f2."userId"
-      WHERE f1."userId" = ${user.id}::uuid
-        AND f2."friendId" != ${user.id}::uuid
-        AND f2."friendId" not in (
-          select "friendId" from "BidirectionFriendship"
-            where "userId"=${user.id}::uuid
+      WITH "friendsOfFriend" as (
+        SELECT DISTINCT f2."friendId" AS "friendOfFriend"
+        FROM "BidirectionFriendship" f1
+        JOIN "BidirectionFriendship" f2
+          ON f1."friendId" = f2."userId"
+        WHERE f1."userId" = ${user.id}::uuid
+          AND f2."friendId" != ${user.id}::uuid
+          AND f2."friendId" not in (
+            select "friendId" from "BidirectionFriendship"
+              where "userId"=${user.id}::uuid
+          )
+        AND f2."friendId" NOT IN (
+          SELECT "friendId" 
+          FROM "FriendshipRequest"
+          WHERE "userId" = ${user.id}::uuid
+          UNION
+          SELECT "userId" 
+          FROM "FriendshipRequest"
+          WHERE "friendId" = ${user.id}::uuid
         )
-      AND f2."friendId" NOT IN (
-        SELECT "friendId" 
-        FROM "FriendshipRequest"
-        WHERE "userId" = ${user.id}::uuid
-
-        UNION
-        
-        SELECT "userId" 
-        FROM "FriendshipRequest"
-        WHERE "friendId" = ${user.id}::uuid
       )
+      SELECT "friendsOfFriend".*, "Profile"."username", "Profile"."picture"
+      FROM "friendsOfFriend"
+      INNER JOIN "Profile"
+        ON "Profile"."userId" = "friendsOfFriend"."friendOfFriend";
     `;
     res.status(200).json({ data: friendsOfFriend });
   } catch (error) {
