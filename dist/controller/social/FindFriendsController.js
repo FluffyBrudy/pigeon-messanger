@@ -27,7 +27,7 @@ const FindFriendsController = (req, res, next) => __awaiter(void 0, void 0, void
     try {
         switch (filter) {
             case constants_1.UNKNOWN:
-                const friendSuggestionUnknown = yield dbClient_1.dbClient.user.findMany(Object.assign(Object.assign({}, cursor), { where: {
+                const friendSuggestionUnknown = yield dbClient_1.dbClient.user.findMany(Object.assign(Object.assign({}, cursor), { skip: cursorId ? 1 : 0, where: {
                         id: { not: userId },
                         username: {
                             startsWith: searchTerm,

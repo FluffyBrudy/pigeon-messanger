@@ -28,6 +28,7 @@ const FindFriendsController: RequestHandler = async (req, res, next) => {
       case UNKNOWN:
         const friendSuggestionUnknown = await dbClient.user.findMany({
           ...cursor,
+          skip: cursorId ? 1 : 0,
           where: {
             id: { not: userId },
             username: {
