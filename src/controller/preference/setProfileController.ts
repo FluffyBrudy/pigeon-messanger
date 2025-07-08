@@ -4,6 +4,7 @@ import { ApiError, BodyValidationError, LoggerApiError } from "../../error/error
 import { createProfileSignature } from "../utils/signature";
 import { ExpressUser } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 export const GetProfileSignatureController: RequestHandler = async (_, res) => {
   const signature = createProfileSignature();
@@ -36,18 +37,24 @@ export const SetInitProfileController: RequestHandler = async (
 };
 
 export const GetUserProfileController: RequestHandler = async (req, res, next) => {
-  const user = (req.user) as ExpressUser;
+  const userId = req.query.q as string;
+  if (!userId) return next(new ApiError(422, "userid is required", true))
+
   try {
     const userData = await dbClient.profile.findUnique({
       where: {
-        userId: user.id,
+        userId,
       },
       omit: {
         id: true
       }
     });
-    res.json({ data: userData })
+    if (!userData) return next(new ApiError(400, "user not found", true))
+    res.json({ data: userData });
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError && ["P2023", "P2010"].includes(error.code)) {
+      return next(new ApiError(422, "Invalid userid", true))
+    }
     return next(new LoggerApiError(error, 500));
   }
 }

@@ -14,6 +14,7 @@ const express_validator_1 = require("express-validator");
 const error_1 = require("../../error/error");
 const signature_1 = require("../utils/signature");
 const dbClient_1 = require("../../service/dbClient");
+const library_1 = require("@prisma/client/runtime/library");
 const GetProfileSignatureController = (_, res) => __awaiter(void 0, void 0, void 0, function* () {
     const signature = (0, signature_1.createProfileSignature)();
     res.json({ data: signature });
@@ -40,19 +41,26 @@ const SetInitProfileController = (req, res, next) => __awaiter(void 0, void 0, v
 });
 exports.SetInitProfileController = SetInitProfileController;
 const GetUserProfileController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = (req.user);
+    const userId = req.query.q;
+    if (!userId)
+        return next(new error_1.ApiError(422, "userid is required", true));
     try {
         const userData = yield dbClient_1.dbClient.profile.findUnique({
             where: {
-                userId: user.id,
+                userId,
             },
             omit: {
                 id: true
             }
         });
+        if (!userData)
+            return next(new error_1.ApiError(400, "user not found", true));
         res.json({ data: userData });
     }
     catch (error) {
+        if (error instanceof library_1.PrismaClientKnownRequestError && ["P2023", "P2010"].includes(error.code)) {
+            return next(new error_1.ApiError(422, "Invalid userid", true));
+        }
         return next(new error_1.LoggerApiError(error, 500));
     }
 });
