@@ -32,6 +32,15 @@ export const SuggestFriendsOfFriends: RequestHandler = async (
             select "friendId" from "BidirectionFriendship"
               where "userId"=${user.id}::uuid
           )
+        AND f2."friendId" NOT IN (
+          SELECT "friendId" 
+          FROM "FriendshipRequest"
+          WHERE "userId" = ${user.id}::uuid
+          UNION
+          SELECT "userId" 
+          FROM "FriendshipRequest"
+          WHERE "friendId" = ${user.id}::uuid
+        )
       )
       SELECT "friendsOfFriend".*, "Profile"."username", "Profile"."picture"
       FROM "friendsOfFriend"
