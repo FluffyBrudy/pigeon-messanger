@@ -71,7 +71,7 @@ export const FriendshipStatusController: RequestHandler = async (req, res, next)
     const isFriend = await dbClient.$queryRaw<{ isFriend: boolean }>`
       SELECT 1 as "isFriend"
       FROM "BidirectionFriendship" bif
-      WHERE bif."userId" = ${userId} AND bif."friendId" = ${friendId}
+      WHERE bif."userId" = ${userId}:uuid AND bif."friendId" = ${friendId}::uuid
     `;
 
     res.status(200).json({ data: { isFriend: !!isFriend } });
