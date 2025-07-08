@@ -17,6 +17,7 @@ export enum SOCIAL {
   ACCEPT_REQUEST = "/friends/requests/accept",
   REJECT_REQUEST = "/friends/requests/reject",
   FRIEND_SUGGESTION = "/friends/suggestion/",
+  FRIEND_STATUS = "/friends/status"
 }
 
 export enum CHAT {

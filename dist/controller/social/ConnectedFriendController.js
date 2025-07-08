@@ -9,7 +9,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SuggestFriendsOfFriends = void 0;
+exports.FriendshipStatusController = exports.SuggestFriendsOfFriends = void 0;
+const uuid_1 = require("uuid");
 const dbClient_1 = require("../../service/dbClient");
 const error_1 = require("../../error/error");
 const LIMIT = 20;
@@ -55,3 +56,25 @@ const SuggestFriendsOfFriends = (req, res, next) => __awaiter(void 0, void 0, vo
     }
 });
 exports.SuggestFriendsOfFriends = SuggestFriendsOfFriends;
+const FriendshipStatusController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.user.id;
+    const friendId = req.query.q;
+    if (!friendId)
+        return next(new error_1.ApiError(422, "invalid userId", true));
+    if (friendId === userId)
+        return next(new error_1.ApiError(422, "you cant check status with yourself"));
+    try {
+        if (!(0, uuid_1.validate)(friendId))
+            return next(new error_1.ApiError(422, "invalid uuid format"));
+        const isFriend = yield dbClient_1.dbClient.$queryRaw `
+      SELECT 1 as "isFriend"
+      FROM "BidirectionFriendship" bif
+      WHERE bif."userId" = ${userId} AND bif."friendId" = ${friendId}
+    `;
+        res.status(200).json({ data: { isFriend: !!isFriend } });
+    }
+    catch (error) {
+        return next(new error_1.LoggerApiError(error, 500));
+    }
+});
+exports.FriendshipStatusController = FriendshipStatusController;
