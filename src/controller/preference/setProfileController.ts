@@ -56,7 +56,7 @@ export const UpdateProfileBioController: RequestHandler = async (req, res, next)
   try {
     const user = (req.user) as ExpressUser;
     const bio: string | undefined = req.body?.bio;
-    if (!bio) return next(new ApiError(422, "bio field is required"))
+    if (!bio) return next(new ApiError(422, "bio field is required", true))
 
     const bioUpdateResponse = await dbClient.profile.update({
       omit: {
@@ -71,6 +71,6 @@ export const UpdateProfileBioController: RequestHandler = async (req, res, next)
     });
     res.json({ data: bioUpdateResponse })
   } catch (error) {
-
+    return next(new LoggerApiError(error, 500))
   }
 }

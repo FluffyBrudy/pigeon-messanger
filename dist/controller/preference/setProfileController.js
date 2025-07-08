@@ -63,7 +63,7 @@ const UpdateProfileBioController = (req, res, next) => __awaiter(void 0, void 0,
         const user = (req.user);
         const bio = (_a = req.body) === null || _a === void 0 ? void 0 : _a.bio;
         if (!bio)
-            return next(new error_1.ApiError(422, "bio field is required"));
+            return next(new error_1.ApiError(422, "bio field is required", true));
         const bioUpdateResponse = yield dbClient_1.dbClient.profile.update({
             omit: {
                 id: true,
@@ -78,6 +78,7 @@ const UpdateProfileBioController = (req, res, next) => __awaiter(void 0, void 0,
         res.json({ data: bioUpdateResponse });
     }
     catch (error) {
+        return next(new error_1.LoggerApiError(error, 500));
     }
 });
 exports.UpdateProfileBioController = UpdateProfileBioController;
