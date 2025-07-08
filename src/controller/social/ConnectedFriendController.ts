@@ -3,6 +3,7 @@ import { validate } from "uuid"
 import { ExpressUser } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 import { ApiError, LoggerApiError } from "../../error/error";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 type FriendOfFriendResponse = {
   suggestedUser: string;
@@ -75,6 +76,6 @@ export const FriendshipStatusController: RequestHandler = async (req, res, next)
 
     res.status(200).json({ data: { isFriend: !!isFriend } });
   } catch (error) {
-    return next(new LoggerApiError(error, 500));
+    return next(new LoggerApiError(error, 500, (error as Error).message, true));
   }
 };

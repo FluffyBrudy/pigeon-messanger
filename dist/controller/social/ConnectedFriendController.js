@@ -74,7 +74,7 @@ const FriendshipStatusController = (req, res, next) => __awaiter(void 0, void 0,
         res.status(200).json({ data: { isFriend: !!isFriend } });
     }
     catch (error) {
-        return next(new error_1.LoggerApiError(error, 500));
+        return next(new error_1.LoggerApiError(error, 500, error.message, true));
     }
 });
 exports.FriendshipStatusController = FriendshipStatusController;
