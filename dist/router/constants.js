@@ -32,6 +32,8 @@ var CHAT;
 var PREFERENCE;
 (function (PREFERENCE) {
     PREFERENCE["ROOT"] = "/preference";
+    PREFERENCE["PREF_PROFILE_DATA_FETCH"] = "/profile";
+    PREFERENCE["PREF_BIO_UPDATE"] = "/profile/bio/update";
     PREFERENCE["PREF_PROFILE_SIGNATURE"] = "/profile/signature";
     PREFERENCE["PREF_PROFILE_IMAGE"] = "/profile/image";
 })(PREFERENCE || (exports.PREFERENCE = PREFERENCE = {}));

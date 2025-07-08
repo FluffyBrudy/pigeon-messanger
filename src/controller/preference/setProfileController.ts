@@ -1,6 +1,6 @@
 import { RequestHandler } from "express";
 import { validationResult } from "express-validator";
-import { BodyValidationError, LoggerApiError } from "../../error/error";
+import { ApiError, BodyValidationError, LoggerApiError } from "../../error/error";
 import { createProfileSignature } from "../utils/signature";
 import { ExpressUser } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
@@ -34,3 +34,43 @@ export const SetInitProfileController: RequestHandler = async (
     return next(new LoggerApiError(error, 500));
   }
 };
+
+export const GetUserProfileController: RequestHandler = async (req, res, next) => {
+  const user = (req.user) as ExpressUser;
+  try {
+    const userData = await dbClient.profile.findUnique({
+      where: {
+        userId: user.id,
+      },
+      omit: {
+        id: true
+      }
+    });
+    res.json({ data: userData })
+  } catch (error) {
+    return next(new LoggerApiError(error, 500));
+  }
+}
+
+export const UpdateProfileBioController: RequestHandler = async (req, res, next) => {
+  try {
+    const user = (req.user) as ExpressUser;
+    const bio: string | undefined = req.body?.bio;
+    if (!bio) return next(new ApiError(422, "bio field is required"))
+
+    const bioUpdateResponse = await dbClient.profile.update({
+      omit: {
+        id: true,
+      },
+      data: {
+        bio: bio
+      },
+      where: {
+        userId: user.id
+      }
+    });
+    res.json({ data: bioUpdateResponse })
+  } catch (error) {
+
+  }
+}

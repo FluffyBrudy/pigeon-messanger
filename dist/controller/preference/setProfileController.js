@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SetInitProfileController = exports.GetProfileSignatureController = void 0;
+exports.UpdateProfileBioController = exports.GetUserProfileController = exports.SetInitProfileController = exports.GetProfileSignatureController = void 0;
 const express_validator_1 = require("express-validator");
 const error_1 = require("../../error/error");
 const signature_1 = require("../utils/signature");
@@ -39,3 +39,45 @@ const SetInitProfileController = (req, res, next) => __awaiter(void 0, void 0, v
     }
 });
 exports.SetInitProfileController = SetInitProfileController;
+const GetUserProfileController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = (req.user);
+    try {
+        const userData = yield dbClient_1.dbClient.profile.findUnique({
+            where: {
+                userId: user.id,
+            },
+            omit: {
+                id: true
+            }
+        });
+        res.json({ data: userData });
+    }
+    catch (error) {
+        return next(new error_1.LoggerApiError(error, 500));
+    }
+});
+exports.GetUserProfileController = GetUserProfileController;
+const UpdateProfileBioController = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    try {
+        const user = (req.user);
+        const bio = (_a = req.body) === null || _a === void 0 ? void 0 : _a.bio;
+        if (!bio)
+            return next(new error_1.ApiError(422, "bio field is required"));
+        const bioUpdateResponse = yield dbClient_1.dbClient.profile.update({
+            omit: {
+                id: true,
+            },
+            data: {
+                bio: bio
+            },
+            where: {
+                userId: user.id
+            }
+        });
+        res.json({ data: bioUpdateResponse });
+    }
+    catch (error) {
+    }
+});
+exports.UpdateProfileBioController = UpdateProfileBioController;

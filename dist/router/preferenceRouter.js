@@ -9,3 +9,5 @@ const preferanceRouter = (0, express_1.Router)();
 exports.preferanceRouter = preferanceRouter;
 preferanceRouter.get(constants_1.PREFERENCE.PREF_PROFILE_SIGNATURE, setProfileController_1.GetProfileSignatureController);
 preferanceRouter.post(constants_1.PREFERENCE.PREF_PROFILE_IMAGE, preference_1.initProfileValidation, setProfileController_1.SetInitProfileController);
+preferanceRouter.get(constants_1.PREFERENCE.PREF_PROFILE_DATA_FETCH, setProfileController_1.GetUserProfileController);
+preferanceRouter.post(constants_1.PREFERENCE.PREF_BIO_UPDATE, setProfileController_1.UpdateProfileBioController);

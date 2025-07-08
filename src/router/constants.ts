@@ -28,6 +28,8 @@ export enum CHAT {
 
 export enum PREFERENCE {
   ROOT = "/preference",
+  PREF_PROFILE_DATA_FETCH = "/profile",
+  PREF_BIO_UPDATE = "/profile/bio/update",
   PREF_PROFILE_SIGNATURE = "/profile/signature",
   PREF_PROFILE_IMAGE = "/profile/image",
 }
