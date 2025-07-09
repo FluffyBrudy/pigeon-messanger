@@ -68,13 +68,12 @@ export const FriendshipStatusController: RequestHandler = async (req, res, next)
   try {
     if (!validate(friendId)) return next(new ApiError(422, "invalid uuid format"));
 
-    const isFriend = await dbClient.$queryRaw<{ isFriend: boolean }>`
+    const isFriend = await dbClient.$queryRaw<[{ isFriend: boolean }]>`
       SELECT 1 as "isFriend"
       FROM "BidirectionFriendship" bif
       WHERE bif."userId" = ${userId}::uuid AND bif."friendId" = ${friendId}::uuid
     `;
-
-    res.status(200).json({ data: { isFriend: !!isFriend } });
+    res.status(200).json({ data: { isFriend: isFriend.length > 0 } });
   } catch (error) {
     return next(new LoggerApiError(error, 500, (error as Error).message, true));
   }

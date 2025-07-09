@@ -71,7 +71,7 @@ const FriendshipStatusController = (req, res, next) => __awaiter(void 0, void 0,
       FROM "BidirectionFriendship" bif
       WHERE bif."userId" = ${userId}::uuid AND bif."friendId" = ${friendId}::uuid
     `;
-        res.status(200).json({ data: { isFriend: !!isFriend } });
+        res.status(200).json({ data: { isFriend: isFriend.length > 0 } });
     }
     catch (error) {
         return next(new error_1.LoggerApiError(error, 500, error.message, true));
