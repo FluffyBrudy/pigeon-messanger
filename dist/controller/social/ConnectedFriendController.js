@@ -49,6 +49,7 @@ const SuggestFriendsOfFriends = (req, res, next) => __awaiter(void 0, void 0, vo
       LIMIT ${LIMIT}::int
       OFFSET ${offset}::int
     `;
+        console.log(friendsOfFriend);
         res.status(200).json({ data: friendsOfFriend });
     }
     catch (error) {

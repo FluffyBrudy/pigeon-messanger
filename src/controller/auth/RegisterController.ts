@@ -18,7 +18,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
 
   const { username, email, password, imageUrl } = req.body as RegisterBody;
   const picture = imageUrl
-    ? { profile: { create: { picture: imageUrl } } }
+    ? { profile: { create: { picture: imageUrl, username } } }
     : {};
   const hashedPassword = hashSync(password, genSaltSync());
   try {
@@ -33,7 +33,7 @@ export const RegisterController: RequestHandler = async (req, res, next) => {
         select: { id: true },
       });
       await dbClient.profile.create({
-        data: { userId: user.id },
+        data: { userId: user.id, username: username },
       });
     });
     res.status(200).json({ data: USER_SUCCESSFULLY_CREATED });

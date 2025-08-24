@@ -22,7 +22,7 @@ const RegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0,
     }
     const { username, email, password, imageUrl } = req.body;
     const picture = imageUrl
-        ? { profile: { create: { picture: imageUrl } } }
+        ? { profile: { create: { picture: imageUrl, username } } }
         : {};
     const hashedPassword = (0, bcryptjs_1.hashSync)(password, (0, bcryptjs_1.genSaltSync)());
     try {
@@ -33,7 +33,7 @@ const RegisterController = (req, res, next) => __awaiter(void 0, void 0, void 0,
                 select: { id: true },
             });
             yield dbClient_1.dbClient.profile.create({
-                data: { userId: user.id },
+                data: { userId: user.id, username: username },
             });
         }));
         res.status(200).json({ data: constants_1.USER_SUCCESSFULLY_CREATED });

@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { validate } from "uuid"
+import { validate } from "uuid";
 import { ExpressUser } from "../../types/common";
 import { dbClient } from "../../service/dbClient";
 import { ApiError, LoggerApiError } from "../../error/error";
@@ -52,21 +52,28 @@ export const SuggestFriendsOfFriends: RequestHandler = async (
       LIMIT ${LIMIT}::int
       OFFSET ${offset}::int
     `;
+    console.log(friendsOfFriend);
     res.status(200).json({ data: friendsOfFriend });
   } catch (error) {
     return next(new LoggerApiError(error, 500));
   }
 };
 
-export const FriendshipStatusController: RequestHandler = async (req, res, next) => {
+export const FriendshipStatusController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
   const userId = (req.user as ExpressUser).id;
   const friendId = req.query.q as string | undefined;
 
   if (!friendId) return next(new ApiError(422, "invalid userId", true));
-  if (friendId === userId) return next(new ApiError(422, "you cant check status with yourself"));
+  if (friendId === userId)
+    return next(new ApiError(422, "you cant check status with yourself"));
 
   try {
-    if (!validate(friendId)) return next(new ApiError(422, "invalid uuid format"));
+    if (!validate(friendId))
+      return next(new ApiError(422, "invalid uuid format"));
 
     const isFriend = await dbClient.$queryRaw<[{ isFriend: boolean }]>`
       SELECT 1 as "isFriend"
