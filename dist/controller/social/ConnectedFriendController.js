@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FriendshipStatusController = exports.SuggestFriendsOfFriends = void 0;
+exports.SuggestRandomNonFriends = exports.FriendshipStatusController = exports.SuggestFriendsOfFriends = void 0;
 const uuid_1 = require("uuid");
 const dbClient_1 = require("../../service/dbClient");
 const error_1 = require("../../error/error");
@@ -79,3 +79,47 @@ const FriendshipStatusController = (req, res, next) => __awaiter(void 0, void 0,
     }
 });
 exports.FriendshipStatusController = FriendshipStatusController;
+/**
+ * Returns random user suggestions that:
+ * - are not the current user
+ * - are not already friends with the current user
+ * - do not have a pending friendship request in either direction with the current user
+ *
+ * Optional query params:
+ * - limit: number (1..50), defaults to LIMIT (20)
+ */
+const SuggestRandomNonFriends = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const requestedLimit = parseInt(req.query.limit || `${LIMIT}`);
+    const limit = Number.isFinite(requestedLimit) && requestedLimit > 0
+        ? Math.min(requestedLimit, LIMIT)
+        : LIMIT;
+    try {
+        const suggestions = yield dbClient_1.dbClient.$queryRaw `
+      SELECT p."userId" AS "suggestedUser", p."username", p."picture"
+      FROM "Profile" p
+      WHERE p."userId" != ${user.id}::uuid
+        AND p."userId" NOT IN (
+          SELECT "friendId" 
+          FROM "BidirectionFriendship" 
+          WHERE "userId" = ${user.id}::uuid
+        )
+        AND p."userId" NOT IN (
+          SELECT "friendId" 
+          FROM "FriendshipRequest"
+          WHERE "userId" = ${user.id}::uuid
+          UNION
+          SELECT "userId"
+          FROM "FriendshipRequest"
+          WHERE "friendId" = ${user.id}::uuid
+        )
+      ORDER BY random()
+      LIMIT ${limit}::int
+    `;
+        res.status(200).json({ data: suggestions });
+    }
+    catch (error) {
+        return next(new error_1.LoggerApiError(error, 500));
+    }
+});
+exports.SuggestRandomNonFriends = SuggestRandomNonFriends;
