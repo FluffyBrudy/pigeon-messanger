@@ -87,7 +87,7 @@ model Profile {
   userId      String  @unique @db.Uuid
   picture     String  @default("https://res.cloudinary.com/dlygf7xye/image/upload/v1736098504/00721c9db2261d4ab0f9528ba9f3c7f2e70f5330.png")
   initialized Boolean @default(false)
-  username    String @db.VarChar(50)
+  username    String @db.VarChar(50) // weird, but this denormalization is intentional
   bio         String  @default("")
   user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
